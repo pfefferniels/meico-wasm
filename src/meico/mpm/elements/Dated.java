@@ -104,6 +104,9 @@ public class Dated extends AbstractXmlSubtree {
             case Mpm.DYNAMICS_MAP:
                 m = DynamicsMap.createDynamicsMap(xml);
                 break;
+            case Mpm.MOVEMENT_MAP: 
+                m = MovementMap.createMovementMap(xml);
+                break;
             case Mpm.METRICAL_ACCENTUATION_MAP:
                 m = MetricalAccentuationMap.createMetricalAccentuationMap(xml);
                 break;

@@ -766,6 +766,7 @@ public class Msm extends AbstractMsm {
             this.parseMarkerMap(part, track, exportExpressiveMidi);                                             // parse markerMap
 
             this.parseChannelVolumeMap(part, track, exportExpressiveMidi);                                      // parse the channelVolumeTrack (only in expressive MIDI mode)
+            this.parsePositionMap(part, track, exportExpressiveMidi);
 
 //            this.parsePedalMap(part, track, exportExpressiveMidi);                                            // parse pedalMap
 
@@ -1076,6 +1077,45 @@ public class Msm extends AbstractMsm {
         // make sure that the channelVolume is set to the default value of 100 at the beginning of the track
         if (prevDate > 0) {                                                                                         // but only if the track does not already start with sub-note dynamics
             track.add(EventMaker.createControlChange(chan, 0, EventMaker.CC_Channel_Volume, 100));
+        }
+    }
+
+    /**
+     * convert the positionMap into a sequence of MIDI controls change events
+     * @param part
+     * @param track
+     * @param exportExpressiveMidi
+     */
+    private void parsePositionMap(Element part, Track track, boolean exportExpressiveMidi) {
+        if (!exportExpressiveMidi
+                || (part.getFirstChildElement("dated") == null)
+                || (part.getAttribute("midi.channel") == null))
+            return;
+
+        int chan = Integer.parseInt(part.getAttributeValue("midi.channel"));                                        // get the midi channel number
+        Element posMap = Helper.getFirstChildElement("positionMap", part.getFirstChildElement("dated"));
+
+        if (posMap == null) {                                                                                        // if no channelVolumeMap
+            return;                                                                                                 // cancel
+        }
+
+        long prevDate = Long.MAX_VALUE;
+        Elements es = posMap.getChildElements();
+        for (int i = es.size() - 1; i >= 0; --i) {                                                                  // traverse the map from back to front
+            Element e = es.get(i);
+
+            long date = Msm.readMillisecondsDateFromElement(e);
+            prevDate = date;
+
+            int value = Math.round(Float.parseFloat(Helper.getAttributeValue("value", e)));
+
+            System.out.println("\ndate (in ms)=" + date + ", value=" + value);
+            track.add(EventMaker.createControlChange(chan, date, EventMaker.CC_Damper_Pedal, value));
+        }
+
+        // make sure that the position is set to the default value of 0 at the beginning of the track
+        if (prevDate > 0) {                                                                                         // but only if the track does not already start with sub-note dynamics
+            track.add(EventMaker.createControlChange(chan, 0, EventMaker.CC_Damper_Pedal, 0));
         }
     }
 

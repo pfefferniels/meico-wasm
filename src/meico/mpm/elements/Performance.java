@@ -400,11 +400,11 @@ public class Performance extends AbstractXmlSubtree {
         ImprecisionMap globalImprecisionMap_toneduration = (ImprecisionMap) this.getGlobal().getDated().getMap(Mpm.IMPRECISION_MAP_TONEDURATION);   // get the global toneduration imprecisionMap
         ImprecisionMap globalImprecisionMap_tuning = (ImprecisionMap) this.getGlobal().getDated().getMap(Mpm.IMPRECISION_MAP_TUNING);       // get the global tuning imprecisionMap
         DynamicsMap globalDynamicsMap = (DynamicsMap) this.getGlobal().getDated().getMap(Mpm.DYNAMICS_MAP);                                 // get the global dynamicsMap
+        MovementMap globalMovementMap = (MovementMap) this.getGlobal().getDated().getMap(Mpm.MOVEMENT_MAP);
         MetricalAccentuationMap globalMetricalAccentuationMap = (MetricalAccentuationMap) this.getGlobal().getDated().getMap(Mpm.METRICAL_ACCENTUATION_MAP); // get the global metricalAccentuationMap
         OrnamentationMap globalOrnamentationMap = (OrnamentationMap) this.getGlobal().getDated().getMap(Mpm.ORNAMENTATION_MAP);             // get the global ornamentationMap
         ArticulationMap globalArticulationMap = (ArticulationMap) this.getGlobal().getDated().getMap(Mpm.ARTICULATION_MAP);                 // get the global articulationMap
         ArrayList<GenericMap> maps = new ArrayList<>();                                                                                     // maps to be processed
-//        ArrayList<KeyValue<Double, Element>> cleanupList = new ArrayList<>();                                                               // maps that need cleanup at the end
 
         // process global data
         System.out.println("Processing global data.");
@@ -452,6 +452,7 @@ public class Performance extends AbstractXmlSubtree {
             TempoMap tempoMap = null;
             AsynchronyMap asynchronyMap = null;
             DynamicsMap dynamicsMap = null;
+            MovementMap movementMap = null;
             MetricalAccentuationMap metricalAccentuationMap = null;
             OrnamentationMap ornamentationMap = null;
             ArticulationMap articulationMap = null;
@@ -464,6 +465,7 @@ public class Performance extends AbstractXmlSubtree {
                 tempoMap = (TempoMap) mpmPart.getDated().getMap(Mpm.TEMPO_MAP);                                         // get tempoMap
                 asynchronyMap = (AsynchronyMap) mpmPart.getDated().getMap(Mpm.ASYNCHRONY_MAP);                          // get asynchronyMap
                 dynamicsMap = (DynamicsMap) mpmPart.getDated().getMap(Mpm.DYNAMICS_MAP);                                // get dynamicsMap
+                movementMap = (MovementMap) mpmPart.getDated().getMap(Mpm.MOVEMENT_MAP);                                // get movementMap
                 metricalAccentuationMap = (MetricalAccentuationMap) mpmPart.getDated().getMap(Mpm.METRICAL_ACCENTUATION_MAP);   // get metricalAccentuationMap
                 ornamentationMap = (OrnamentationMap) mpmPart.getDated().getMap(Mpm.ORNAMENTATION_MAP);                 // get ornamentationMap
                 articulationMap = (ArticulationMap) mpmPart.getDated().getMap(Mpm.ARTICULATION_MAP);                    // get articulationMap
@@ -482,6 +484,8 @@ public class Performance extends AbstractXmlSubtree {
                 asynchronyMap = globalAsynchronyMap;
             if (dynamicsMap == null)
                 dynamicsMap = globalDynamicsMap;
+            if (movementMap == null)
+                movementMap = globalMovementMap;
             if (metricalAccentuationMap == null)
                 metricalAccentuationMap = globalMetricalAccentuationMap;
             if (ornamentationMap == null)
@@ -506,6 +510,12 @@ public class Performance extends AbstractXmlSubtree {
                 Performance.addPerformanceTimingAttributes(channelVolumeMap);                       // add the .perf attributes
             }
 
+            GenericMap positionMap = movementMap.renderMovementToMap();
+            if (positionMap != null) {
+                dated.appendChild(positionMap.getXml());
+                Performance.addPerformanceTimingAttributes(positionMap);
+            }
+
             MetricalAccentuationMap.renderMetricalAccentuationToMap(score, metricalAccentuationMap, ((timeSignatureMap != null) ? timeSignatureMap : globalTimeSignatureMap), this.getPPQ());  // add metrical accentuations; we do this before the rubato transformation as this shifts the symbolic dates of the events
             ArticulationMap.renderArticulationToMap_noMillisecondModifiers(score, articulationMap); // add articulations except for millisecond modifiers
 
@@ -525,6 +535,10 @@ public class Performance extends AbstractXmlSubtree {
             // channelVolumeMap
             TempoMap.renderTempoToMap(channelVolumeMap, this.getPPQ(), tempoMap);                   // channelVolumeMap gets trandformed by the tempoMap but not the rubatoMap as the latter would create higher-frequency variations in the dynamics curve
             AsynchronyMap.renderAsynchronyToMap(channelVolumeMap, asynchronyMap);                   // add asynchrony offsets to the millisecond dates to the channelVolumeMap
+
+            // positionMap
+            TempoMap.renderTempoToMap(positionMap, this.getPPQ(), tempoMap);                   // channelVolumeMap gets trandformed by the tempoMap but not the rubatoMap as the latter would create higher-frequency variations in the dynamics curve
+            AsynchronyMap.renderAsynchronyToMap(positionMap, asynchronyMap);                   // add asynchrony offsets to the millisecond dates to the channelVolumeMap
 
             // score
             if (score == null)      // if this msm part has no score

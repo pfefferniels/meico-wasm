@@ -37,6 +37,7 @@ public class Mpm extends AbstractMsm {
     public static final String ARTICULATION_MAP                 = "articulationMap";
     public static final String ORNAMENTATION_MAP                = "ornamentationMap";
     public static final String DYNAMICS_MAP                     = "dynamicsMap";
+    public static final String MOVEMENT_MAP                     = "movementMap";
     public static final String METRICAL_ACCENTUATION_MAP        = "metricalAccentuationMap";
     public static final String TEMPO_MAP                        = "tempoMap";
     public static final String RUBATO_MAP                       = "rubatoMap";
