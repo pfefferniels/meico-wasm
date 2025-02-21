@@ -18,7 +18,7 @@ public class MovementData {
     public Double position = 0.0;
     public Double transitionTo = 1.0;
     public Double endDate = null;
-    // public String controller = 67;
+    public String controller = "sustain";
 
     public Double curvature = 0.4;
     public Double protraction = 0.0;
@@ -60,6 +60,10 @@ public class MovementData {
         Attribute id = xml.getAttribute("id", "http://www.w3.org/XML/1998/namespace");
         if (id != null)
             this.xmlId = id.getValue();
+
+        Attribute controller = xml.getAttribute("controller", "http://www.w3.org/XML/1998/namespace");
+        if (controller != null)
+            this.xmlId = controller.getValue();
     }
 
     /**
@@ -76,6 +80,7 @@ public class MovementData {
         clone.transitionTo = this.transitionTo;
         clone.curvature = this.curvature;
         clone.protraction = this.protraction;
+        clone.controller = this.controller;
 
         clone.x1 = this.x1;
         clone.x2 = this.x2;
@@ -209,12 +214,10 @@ public class MovementData {
 
         // generate further tuplets in-between each two adjacent tuplets as long as their value difference is greater than maxStepSize; this here is basically a depth-first algorithm
         for (int i = 0; i < ts.size() - 1; ++i) {
-            // System.out.println("Test=" + Math.abs(series.get(i+1)[1] - series.get(i)[1]));
             while (Math.abs(series.get(i+1)[1] - series.get(i)[1]) > maxStepSize) {
                 double t = (ts.get(i) + ts.get(i+1)) * 0.5;
                 ts.add(i+1, t);
                 series.add(i+1, this.getDatePosition(t));
-                System.out.println("\nAdded to series " +  this.getDatePosition(t)[0] + " " + this.getDatePosition(t)[1]);
             }
         }
 

@@ -230,6 +230,7 @@ public class MovementMap extends GenericMap {
             Element e = new Element("position", movementMap.getXml().getNamespaceURI());
             e.addAttribute(new Attribute("date", Double.toString(event[0])));
             e.addAttribute(new Attribute("value", Double.toString(event[1])));
+            e.addAttribute(new Attribute("controller", movementData.controller));
             movementMap.addElement(e);
         }
     }
