@@ -1095,8 +1095,8 @@ public class Msm extends AbstractMsm {
         int chan = Integer.parseInt(part.getAttributeValue("midi.channel"));                                        // get the midi channel number
         Element posMap = Helper.getFirstChildElement("positionMap", part.getFirstChildElement("dated"));
 
-        if (posMap == null) {                                                                                        // if no channelVolumeMap
-            return;                                                                                                 // cancel
+        if (posMap == null) {
+            return;
         }
 
         long prevDate = Long.MAX_VALUE;
@@ -1108,14 +1108,17 @@ public class Msm extends AbstractMsm {
             prevDate = date;
 
             int value = Math.round(Float.parseFloat(Helper.getAttributeValue("value", e)));
+            String controller = Helper.getAttributeValue("controller", e);
+            short controllerNumber = 0;
 
-            System.out.println("\ndate (in ms)=" + date + ", value=" + value);
-            track.add(EventMaker.createControlChange(chan, date, EventMaker.CC_Damper_Pedal, value));
-        }
-
-        // make sure that the position is set to the default value of 0 at the beginning of the track
-        if (prevDate > 0) {                                                                                         // but only if the track does not already start with sub-note dynamics
-            track.add(EventMaker.createControlChange(chan, 0, EventMaker.CC_Damper_Pedal, 0));
+            if (controller == "sustain") {
+                controllerNumber = EventMaker.CC_Damper_Pedal;
+            }
+            else if (controller == "soft") {
+                controllerNumber = EventMaker.CC_Soft_Pedal;
+            }
+            
+            track.add(EventMaker.createControlChange(chan, date, controllerNumber, value));
         }
     }
 
