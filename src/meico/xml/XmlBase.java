@@ -1,6 +1,6 @@
 package meico.xml;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import net.sf.saxon.s9api.Xslt30Transformer;
 import nu.xom.*;
 import org.xml.sax.SAXException;

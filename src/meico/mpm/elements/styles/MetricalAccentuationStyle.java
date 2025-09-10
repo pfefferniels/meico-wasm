@@ -1,6 +1,6 @@
 package meico.mpm.elements.styles;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.elements.styles.defs.AccentuationPatternDef;
 import nu.xom.Element;
 

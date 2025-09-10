@@ -1,6 +1,6 @@
 package meico.mpm.elements;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.midi.Midi;
 import meico.mpm.Mpm;
 import meico.mpm.elements.maps.*;

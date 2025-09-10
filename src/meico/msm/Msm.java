@@ -2,7 +2,7 @@ package meico.msm;
 
 import meico.mpm.elements.Performance;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.midi.*;
 import meico.supplementary.KeyValue;
 import nu.xom.*;
@@ -1270,5 +1270,33 @@ public class Msm extends AbstractMsm {
         System.out.println(" done");
 
         return e.size();
+    }
+
+    /**
+     * make the cleanup of a list of msm objects; this removes all miscMaps, currentDate, tie, and layer and lots of further non-MSM conform attributes
+     * @param msms the list of Msm objects to clean up
+     */
+    public static void cleanup(List<Msm> msms) {
+        for (Msm msm : msms)                            // go through all msm objects in the input list
+            cleanup(msm);                               // make the cleanup
+    }
+
+    /**
+     * make the cleanup of one msm object; this removes all miscMaps, currentDate, tie, and layer and lots of further non-MSM conform attributes
+     * @param msm the Msm object to clean up
+     */
+    public static void cleanup(Msm msm) {
+        // delete all miscMaps and non-msm conform attributes
+        Nodes n = msm.getRootElement().query("descendant::*[local-name()='miscMap'] | descendant::*[attribute::currentDate]/attribute::currentDate | descendant::*[attribute::tie]/attribute::tie | descendant::*[attribute::layer]/attribute::layer | descendant::*[attribute::endid]/attribute::endid | descendant::*[attribute::tstamp2]/attribute::tstamp2 | descendant::*[local-name()='goto' and attribute::n]/attribute::n");
+        for (int i=0; i < n.size(); ++i) {
+            if (n.get(i) instanceof Element) {
+                n.get(i).getParent().removeChild(n.get(i));
+//                n.get(i).detach();
+            }
+
+            if (n.get(i) instanceof Attribute)
+                ((Element) n.get(i).getParent()).removeAttribute((Attribute) n.get(i));
+        }
+        msm.deleteEmptyMaps();
     }
 }

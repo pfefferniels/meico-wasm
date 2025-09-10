@@ -1,4 +1,4 @@
-package meico.mei;
+package meico.xml;
 
 import java.io.*;
 import java.net.URL;

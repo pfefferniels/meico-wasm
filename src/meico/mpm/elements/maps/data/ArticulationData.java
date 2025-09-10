@@ -1,6 +1,6 @@
 package meico.mpm.elements.maps.data;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.elements.styles.ArticulationStyle;
 import meico.mpm.elements.styles.defs.ArticulationDef;
 import nu.xom.Attribute;

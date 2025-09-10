@@ -1,6 +1,6 @@
 package meico.mpm;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.elements.metadata.Author;
 import meico.mpm.elements.metadata.Comment;
 import meico.mpm.elements.metadata.Metadata;
