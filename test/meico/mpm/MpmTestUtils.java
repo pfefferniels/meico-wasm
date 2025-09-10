@@ -166,6 +166,15 @@ public class MpmTestUtils {
             case Mpm.ARTICULATION_MAP:
                 map = ArticulationMap.createArticulationMap();
                 break;
+            case Mpm.DYNAMICS_MAP:
+                map = DynamicsMap.createDynamicsMap();
+                break;
+            case Mpm.TEMPO_MAP:
+                map = TempoMap.createTempoMap();
+                break;
+            case Mpm.METRICAL_ACCENTUATION_MAP:
+                map = MetricalAccentuationMap.createMetricalAccentuationMap();
+                break;
             default:
                 map = GenericMap.createGenericMap(mapType);
                 break;
