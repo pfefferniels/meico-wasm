@@ -71,6 +71,17 @@ double Helper::parseDouble(const std::string& str, double defaultValue) {
     }
 }
 
+bool Helper::parseBoolean(const std::string& str, bool defaultValue) {
+    std::string lower = str;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    if (lower == "true" || lower == "1" || lower == "yes") {
+        return true;
+    } else if (lower == "false" || lower == "0" || lower == "no") {
+        return false;
+    }
+    return defaultValue;
+}
+
 int Helper::parseInt(const std::string& str, int defaultValue) {
     try {
         return std::stoi(str);

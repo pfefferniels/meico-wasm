@@ -27,6 +27,33 @@ public:
     KeyValue(const K& k, const V& v) : key(k), value(v) {}
 
     /**
+     * Move constructor
+     * @param k the key
+     * @param v the value (moved)
+     */
+    KeyValue(const K& k, V&& v) : key(k), value(std::move(v)) {}
+
+    /**
+     * Copy constructor
+     */
+    KeyValue(const KeyValue& other) = default;
+
+    /**
+     * Move constructor
+     */
+    KeyValue(KeyValue&& other) = default;
+
+    /**
+     * Copy assignment operator
+     */
+    KeyValue& operator=(const KeyValue& other) = default;
+
+    /**
+     * Move assignment operator
+     */
+    KeyValue& operator=(KeyValue&& other) = default;
+
+    /**
      * Get the key
      * @return the key
      */

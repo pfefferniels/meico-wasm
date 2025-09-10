@@ -62,6 +62,14 @@ public:
     static double parseDouble(const std::string& str, double defaultValue = 0.0);
 
     /**
+     * Convert string to boolean with error handling
+     * @param str the string to convert
+     * @param defaultValue default value if conversion fails
+     * @return the converted boolean value
+     */
+    static bool parseBoolean(const std::string& str, bool defaultValue = false);
+
+    /**
      * Convert string to int with error handling
      * @param str the string to convert
      * @param defaultValue default value if conversion fails

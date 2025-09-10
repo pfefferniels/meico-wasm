@@ -96,8 +96,10 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMap(const std::string& mapT
         if (performance && mapType == mpm::Mpm::DYNAMICS_MAP) {
             // Create a dynamics map with some test data
             auto dynamicsMap = mpm::DynamicsMap::createDynamicsMap();
-            dynamicsMap->addDynamics(0.0, 60.0);    // piano at start
-            dynamicsMap->addDynamics(1440.0, 110.0); // forte later
+            
+            // Add dynamics transition that will span across our notes
+            dynamicsMap->addDynamics(0.0, "60", "110", 0.5, 0.0); // piano to forte with curvature from 0 to endDate
+            dynamicsMap->addDynamics(1920.0, "110", "", 0.0, 0.0); // end instruction to set end date
             
             performance->getGlobal()->getDated()->addMap(std::move(dynamicsMap));
         }

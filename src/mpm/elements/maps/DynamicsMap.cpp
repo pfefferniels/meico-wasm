@@ -1,7 +1,9 @@
 #include "mpm/elements/maps/DynamicsMap.h"
+#include "mpm/elements/maps/data/DynamicsData.h"
 #include "mpm/Mpm.h"
 #include "xml/Helper.h"
 #include <algorithm>
+#include <limits>
 
 namespace meico {
 namespace mpm {
@@ -13,36 +15,84 @@ std::unique_ptr<DynamicsMap> DynamicsMap::createDynamicsMap() {
     return std::make_unique<DynamicsMap>();
 }
 
-void DynamicsMap::addDynamics(double date, double dynamics) {
-    dynamicsData.emplace_back(date, dynamics);
+void DynamicsMap::addDynamics(double date, const std::string& volume, const std::string& transitionTo, 
+                              double curvature, double protraction, bool subNoteDynamics,
+                              const std::string& id) {
+    auto data = std::make_unique<DynamicsData>();
+    data->startDate = date;
+    data->volumeString = volume;
     
-    // Keep data sorted by date for efficient lookup
-    std::sort(dynamicsData.begin(), dynamicsData.end(), 
-              [](const auto& a, const auto& b) { return a.getKey() < b.getKey(); });
+    // Try to parse volume as numeric value
+    try {
+        data->volume = xml::Helper::parseDouble(volume);
+    } catch (...) {
+        // Keep as string for style resolution
+        data->volume = 0.0;
+    }
+    
+    if (!transitionTo.empty()) {
+        data->transitionToString = transitionTo;
+        try {
+            data->transitionTo = xml::Helper::parseDouble(transitionTo);
+        } catch (...) {
+            // Keep as string for style resolution
+            data->transitionTo = 0.0;
+        }
+    } else {
+        // No transition specified - constant dynamics
+        data->transitionToString = volume;
+        data->transitionTo = data->volume;
+    }
+    
+    data->curvature = std::max(0.0, std::min(1.0, curvature));
+    data->protraction = std::max(-1.0, std::min(1.0, protraction));
+    data->subNoteDynamics = subNoteDynamics;
+    data->xmlId = id;
+    
+    addDynamics(std::move(data));
+}
+
+void DynamicsMap::addDynamics(std::unique_ptr<DynamicsData> data) {
+    double date = data->startDate;
+    
+    // Find insertion point to keep sorted by date
+    auto it = std::lower_bound(dynamicsData.begin(), dynamicsData.end(), date,
+        [](const auto& item, double d) { return item.getKey() < d; });
+    
+    // Insert at the correct position
+    dynamicsData.emplace(it, date, std::move(data));
+    
+    // Update end dates for all elements
+    for (size_t i = 0; i < dynamicsData.size(); ++i) {
+        dynamicsData[i].getValue()->endDate = getEndDate(i);
+    }
+}
+
+DynamicsData* DynamicsMap::getDynamicsDataAt(double date) const {
+    for (int i = getElementIndexBeforeAt(date); i >= 0; --i) {
+        DynamicsData* dd = getDynamicsDataOf(i);
+        if (dd != nullptr) {
+            return dd;
+        }
+    }
+    return nullptr;
+}
+
+DynamicsData* DynamicsMap::getDynamicsDataOf(int index) const {
+    if (dynamicsData.empty() || (index < 0) || (index >= static_cast<int>(dynamicsData.size()))) {
+        return nullptr;
+    }
+    
+    return dynamicsData[index].getValue().get();
 }
 
 double DynamicsMap::getDynamicsAt(double date) const {
-    if (dynamicsData.empty()) {
+    DynamicsData* dd = getDynamicsDataAt(date);
+    if (dd == nullptr) {
         return 100.0; // Default velocity
     }
     
-    // Find the appropriate dynamics value
-    for (size_t i = 0; i < dynamicsData.size(); ++i) {
-        if (dynamicsData[i].getKey() >= date) {
-            if (i == 0) {
-                return dynamicsData[i].getValue();
-            }
-            
-            // Interpolate between previous and current
-            const auto& prev = dynamicsData[i - 1];
-            const auto& curr = dynamicsData[i];
-            return interpolate(prev.getKey(), prev.getValue(), 
-                             curr.getKey(), curr.getValue(), date);
-        }
-    }
-    
-    // Use last value if date is beyond all entries
-    return dynamicsData.back().getValue();
+    return dd->getDynamicsAt(date);
 }
 
 bool DynamicsMap::applyToMsmPart(Element msmPart) {
@@ -83,25 +133,32 @@ bool DynamicsMap::applyToMsmPart(Element msmPart) {
 void DynamicsMap::parseData(const Element& xmlElement) {
     GenericMap::parseData(xmlElement);
     
-    // Parse dynamics entries from XML (simplified implementation)
+    // Parse dynamics entries from XML
     for (auto child : xmlElement.children()) {
         if (std::string(child.name()) == "dynamics") {
-            auto dateAttr = child.attribute("date");
-            auto valueAttr = child.attribute("value");
-            if (dateAttr && valueAttr) {
-                double date = xml::Helper::parseDouble(dateAttr.value());
-                double value = xml::Helper::parseDouble(valueAttr.value());
-                addDynamics(date, value);
-            }
+            auto data = std::make_unique<DynamicsData>(child);
+            addDynamics(std::move(data));
         }
     }
 }
 
-double DynamicsMap::interpolate(double x0, double y0, double x1, double y1, double x) const {
-    if (x1 == x0) {
-        return y0;
+int DynamicsMap::getElementIndexBeforeAt(double date) const {
+    for (int i = static_cast<int>(dynamicsData.size()) - 1; i >= 0; --i) {
+        if (dynamicsData[i].getKey() <= date) {
+            return i;
+        }
     }
-    return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+    return -1;
+}
+
+double DynamicsMap::getEndDate(int index) const {
+    // Get the date of the subsequent dynamics element
+    double endDate = std::numeric_limits<double>::max();
+    for (int j = index + 1; j < static_cast<int>(dynamicsData.size()); ++j) {
+        endDate = dynamicsData[j].getKey();
+        break;
+    }
+    return endDate;
 }
 
 } // namespace mpm

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mpm/elements/maps/GenericMap.h"
+#include "mpm/elements/maps/data/DynamicsData.h"
 #include "supplementary/KeyValue.h"
 #include <vector>
 #include <memory>
@@ -14,7 +15,7 @@ namespace mpm {
  */
 class DynamicsMap : public GenericMap {
 private:
-    std::vector<supplementary::KeyValue<double, double>> dynamicsData;
+    std::vector<supplementary::KeyValue<double, std::unique_ptr<DynamicsData>>> dynamicsData;
 
 public:
     /**
@@ -34,16 +35,43 @@ public:
     static std::unique_ptr<DynamicsMap> createDynamicsMap();
 
     /**
-     * Add a dynamics entry
+     * Add a dynamics entry with full parameters
      * @param date the musical time (in PPQ units)
-     * @param dynamics the dynamics value (velocity)
+     * @param volume the volume string or value
+     * @param transitionTo the transition target (optional)
+     * @param curvature the curvature parameter (0.0-1.0)
+     * @param protraction the protraction parameter (-1.0-1.0)
+     * @param subNoteDynamics whether to enable sub-note dynamics
+     * @param id the XML ID (optional)
      */
-    void addDynamics(double date, double dynamics);
+    void addDynamics(double date, const std::string& volume, const std::string& transitionTo = "", 
+                     double curvature = 0.0, double protraction = 0.0, bool subNoteDynamics = false,
+                     const std::string& id = "");
 
     /**
-     * Get dynamics value at a specific time
+     * Add a dynamics entry from DynamicsData object
+     * @param data the dynamics data
+     */
+    void addDynamics(std::unique_ptr<DynamicsData> data);
+
+    /**
+     * Get dynamics data at a specific time (finds the relevant dynamics instruction)
      * @param date the musical time
-     * @return dynamics value (interpolated if needed)
+     * @return pointer to DynamicsData or nullptr if none found
+     */
+    DynamicsData* getDynamicsDataAt(double date) const;
+
+    /**
+     * Get dynamics data of a specific element by index
+     * @param index the index
+     * @return pointer to DynamicsData or nullptr if invalid index
+     */
+    DynamicsData* getDynamicsDataOf(int index) const;
+
+    /**
+     * Get dynamics value at a specific time using original Java algorithm
+     * @param date the musical time
+     * @return dynamics value (computed using Bézier curves)
      */
     double getDynamicsAt(double date) const;
 
@@ -63,15 +91,18 @@ protected:
 
 private:
     /**
-     * Linear interpolation between two values
-     * @param x0 first x coordinate
-     * @param y0 first y coordinate
-     * @param x1 second x coordinate
-     * @param y1 second y coordinate
-     * @param x target x coordinate
-     * @return interpolated y value
+     * Get the index of the dynamics element before or at the given date
+     * @param date the musical time
+     * @return index or -1 if none found
      */
-    double interpolate(double x0, double y0, double x1, double y1, double x) const;
+    int getElementIndexBeforeAt(double date) const;
+
+    /**
+     * Get the end date for a dynamics instruction (date of next instruction or max value)
+     * @param index the index of the current dynamics instruction
+     * @return the end date
+     */
+    double getEndDate(int index) const;
 };
 
 } // namespace mpm

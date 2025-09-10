@@ -24,6 +24,7 @@ set(SOURCES
     src/mpm/elements/Dated.cpp
     src/mpm/elements/maps/GenericMap.cpp
     src/mpm/elements/maps/DynamicsMap.cpp
+    src/mpm/elements/maps/data/DynamicsData.cpp
     src/mpm/elements/maps/ArticulationMap.cpp
     src/mpm/elements/maps/MetricalAccentuationMap.cpp
     src/supplementary/KeyValue.cpp
@@ -43,6 +44,7 @@ set(HEADERS
     include/mpm/elements/Dated.h
     include/mpm/elements/maps/GenericMap.h
     include/mpm/elements/maps/DynamicsMap.h
+    include/mpm/elements/maps/data/DynamicsData.h
     include/mpm/elements/maps/ArticulationMap.h
     include/mpm/elements/maps/MetricalAccentuationMap.h
     include/mpm/elements/metadata/Metadata.h
