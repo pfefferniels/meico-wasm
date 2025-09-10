@@ -1,6 +1,6 @@
 package meico.mpm.elements.styles.defs;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.Mpm;
 import nu.xom.Attribute;
 import nu.xom.Element;

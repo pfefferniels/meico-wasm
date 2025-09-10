@@ -1,6 +1,6 @@
 package meico.midi;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.msm.Msm;
 import nu.xom.Attribute;
 import nu.xom.Element;

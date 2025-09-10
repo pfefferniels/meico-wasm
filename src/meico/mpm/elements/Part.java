@@ -1,6 +1,6 @@
 package meico.mpm.elements;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.Mpm;
 import meico.xml.AbstractXmlSubtree;
 import nu.xom.Attribute;

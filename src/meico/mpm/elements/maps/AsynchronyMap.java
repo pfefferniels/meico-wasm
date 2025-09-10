@@ -1,6 +1,6 @@
 package meico.mpm.elements.maps;
 
-import meico.mei.Helper;
+import meico.xml.Helper;
 import meico.mpm.Mpm;
 import meico.supplementary.KeyValue;
 import nu.xom.Attribute;
