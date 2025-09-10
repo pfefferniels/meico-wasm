@@ -6,6 +6,7 @@
 #include "mpm/elements/maps/DynamicsMap.h"
 #include "mpm/elements/maps/ArticulationMap.h"
 #include "mpm/elements/maps/MetricalAccentuationMap.h"
+#include "mpm/elements/maps/TempoMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -192,6 +193,32 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMetricalAccentuationMap() {
             
             // Add the map to the performance
             performance->getGlobal()->getDated()->addMap(std::move(accentuationMap));
+        }
+    }
+    
+    return mpm;
+}
+
+std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithTempoMap() {
+    auto mpm = createBasicMpm();
+    
+    if (mpm->size() > 0) {
+        auto* performance = mpm->getPerformance(0);
+        if (performance && performance->getGlobal()) {
+            // Create tempo map with some test data
+            auto tempoMap = mpm::TempoMap::createTempoMap();
+            
+            // Add initial tempo: 120 BPM at date 0
+            tempoMap->addTempo(0.0, 120.0, 0.25);
+            
+            // Add accelerando: transition from 120 to 140 BPM at date 960 (1 beat later)
+            tempoMap->addTempo(960.0, "120", "140", 0.25, 0.5, "accel_1");
+            
+            // Add ritardando: transition from 140 to 100 BPM at date 1920 (2 beats later)
+            tempoMap->addTempo(1920.0, "140", "100", 0.25, 0.5, "rit_1");
+            
+            // Add the map to the performance
+            performance->getGlobal()->getDated()->addMap(std::move(tempoMap));
         }
     }
     

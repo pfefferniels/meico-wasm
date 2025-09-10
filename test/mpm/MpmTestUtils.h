@@ -52,6 +52,12 @@ public:
     static std::unique_ptr<mpm::Mpm> createMpmWithMetricalAccentuationMap();
 
     /**
+     * Creates an MPM document with tempo map for testing.
+     * @return MPM document with tempo map
+     */
+    static std::unique_ptr<mpm::Mpm> createMpmWithTempoMap();
+
+    /**
      * Applies an MPM performance to an MSM and returns the result.
      * @param msm The input MSM
      * @param mpm The MPM to apply
