@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/meico-test.dir/link.d "CMakeFiles/meico-test.dir/test/main.cpp.o" -o meico-test  libmeico-cpp.a
