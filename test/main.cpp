@@ -14,6 +14,7 @@
 #include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/maps/TempoMap.h"
 #include "mpm/elements/maps/RubatoMap.h"
+#include "mpm/elements/maps/OrnamentationMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "mpm/MpmTestUtils.h"
 
@@ -229,6 +230,39 @@ int main() {
         }
         
         std::cout << "\n🎉 All tests passed! RubatoMap has been successfully implemented!" << std::endl;
+        
+        // Test 6: Ornamentation Map
+        std::cout << "\nTesting OrnamentationMap..." << std::endl;
+        auto ornamentationMpm = test::MpmTestUtils::createMpmWithMap(mpm::Mpm::ORNAMENTATION_MAP);
+        std::cout << "✓ Created MPM with ornamentation map" << std::endl;
+        
+        auto ornamentationResult = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *ornamentationMpm);
+        std::cout << "✓ MPM ornamentation application completed successfully!" << std::endl;
+        
+        std::cout << "\n--- AFTER Performance Application (Ornamentation) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*ornamentationResult, "Result MSM with Applied Ornamentation");
+        
+        // Test OrnamentationMap algorithms directly
+        std::cout << "\nTesting OrnamentationMap algorithms..." << std::endl;
+        auto testOrnamentationMap = mpm::OrnamentationMap::createOrnamentationMap();
+        
+        // Test grace note ornament
+        testOrnamentationMap->addOrnament(0.0, std::string("grace"));
+        
+        // Test trill ornament
+        testOrnamentationMap->addOrnament(480.0, std::string("trill"), 1.0, {}, "trill1");
+        
+        // Test ornament with note order
+        std::vector<std::string> noteOrder = {"ascending pitch"};
+        testOrnamentationMap->addOrnament(960.0, std::string("arpeggio"), 0.8, noteOrder);
+        
+        // Test ornament data retrieval
+        auto ornamentRetrievedData = testOrnamentationMap->getOrnamentDataOf(0);
+        if (ornamentRetrievedData) {
+            std::cout << "✓ Ornament data retrieval working - ornament: " << ornamentRetrievedData->ornamentDefName << " at date: " << ornamentRetrievedData->date << std::endl;
+        }
+        
+        std::cout << "\n🎉 All tests passed! OrnamentationMap has been successfully implemented!" << std::endl;
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

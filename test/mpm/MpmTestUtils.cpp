@@ -8,6 +8,7 @@
 #include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/maps/TempoMap.h"
 #include "mpm/elements/maps/RubatoMap.h"
+#include "mpm/elements/maps/OrnamentationMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -104,6 +105,15 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMap(const std::string& mapT
             dynamicsMap->addDynamics(1920.0, "110", "", 0.0, 0.0); // end instruction to set end date
             
             performance->getGlobal()->getDated()->addMap(std::move(dynamicsMap));
+        } else if (performance && mapType == mpm::Mpm::ORNAMENTATION_MAP) {
+            // Create an ornamentation map with some test data
+            auto ornamentationMap = mpm::OrnamentationMap::createOrnamentationMap();
+            
+            // Add ornament definitions for testing
+            ornamentationMap->addOrnament(0.0, "grace"); // grace note on first note
+            ornamentationMap->addOrnament(480.0, "trill"); // trill on second note
+            
+            performance->getGlobal()->getDated()->addMap(std::move(ornamentationMap));
         }
     }
     
