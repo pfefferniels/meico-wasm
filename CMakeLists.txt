@@ -30,11 +30,13 @@ set(SOURCES
     src/mpm/elements/maps/data/TempoData.cpp
     src/mpm/elements/maps/data/RubatoData.cpp
     src/mpm/elements/maps/data/OrnamentData.cpp
+    src/mpm/elements/maps/data/MovementData.cpp
     src/mpm/elements/maps/ArticulationMap.cpp
     src/mpm/elements/maps/MetricalAccentuationMap.cpp
     src/mpm/elements/maps/TempoMap.cpp
     src/mpm/elements/maps/RubatoMap.cpp
     src/mpm/elements/maps/OrnamentationMap.cpp
+    src/mpm/elements/maps/MovementMap.cpp
     src/supplementary/KeyValue.cpp
 )
 
@@ -58,11 +60,13 @@ set(HEADERS
     include/mpm/elements/maps/data/TempoData.h
     include/mpm/elements/maps/data/RubatoData.h
     include/mpm/elements/maps/data/OrnamentData.h
+    include/mpm/elements/maps/data/MovementData.h
     include/mpm/elements/maps/ArticulationMap.h
     include/mpm/elements/maps/MetricalAccentuationMap.h
     include/mpm/elements/maps/TempoMap.h
     include/mpm/elements/maps/RubatoMap.h
     include/mpm/elements/maps/OrnamentationMap.h
+    include/mpm/elements/maps/MovementMap.h
     include/mpm/elements/metadata/Metadata.h
     include/supplementary/KeyValue.h
     include/common/common.h

@@ -9,6 +9,7 @@
 #include "mpm/elements/maps/TempoMap.h"
 #include "mpm/elements/maps/RubatoMap.h"
 #include "mpm/elements/maps/OrnamentationMap.h"
+#include "mpm/elements/maps/MovementMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -114,6 +115,16 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMap(const std::string& mapT
             ornamentationMap->addOrnament(480.0, "trill"); // trill on second note
             
             performance->getGlobal()->getDated()->addMap(std::move(ornamentationMap));
+        } else if (performance && mapType == mpm::Mpm::MOVEMENT_MAP) {
+            // Create a movement map with some test data
+            auto movementMap = mpm::MovementMap::createMovementMap();
+            
+            // Add movement instructions for testing sustain pedal
+            movementMap->addMovement(0.0, "sustain", 0.0, 1.0, 0.5, 0.0, "pedal_down"); // Pedal down with S-curve
+            movementMap->addMovement(960.0, "sustain", 1.0, 0.0, 0.5, 0.0, "pedal_up"); // Pedal up with S-curve
+            movementMap->addMovement(1920.0, "sustain", 0.0, 0.0, 0.0, 0.0, "end"); // End position
+            
+            performance->getGlobal()->getDated()->addMap(std::move(movementMap));
         }
     }
     

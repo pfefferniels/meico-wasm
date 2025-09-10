@@ -15,6 +15,7 @@
 #include "mpm/elements/maps/TempoMap.h"
 #include "mpm/elements/maps/RubatoMap.h"
 #include "mpm/elements/maps/OrnamentationMap.h"
+#include "mpm/elements/maps/MovementMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "mpm/MpmTestUtils.h"
 
@@ -263,6 +264,49 @@ int main() {
         }
         
         std::cout << "\n🎉 All tests passed! OrnamentationMap has been successfully implemented!" << std::endl;
+        
+        // Test 7: Movement Map
+        std::cout << "\nTesting MovementMap..." << std::endl;
+        auto movementMpm = test::MpmTestUtils::createMpmWithMap(mpm::Mpm::MOVEMENT_MAP);
+        std::cout << "✓ Created MPM with movement map" << std::endl;
+        
+        auto movementResult = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *movementMpm);
+        std::cout << "✓ MPM movement application completed successfully!" << std::endl;
+        
+        std::cout << "\n--- AFTER Performance Application (Movement) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*movementResult, "Result MSM with Applied Movement");
+        
+        // Test MovementMap algorithms directly
+        std::cout << "\nTesting MovementMap algorithms..." << std::endl;
+        auto testMovementMap = mpm::MovementMap::createMovementMap();
+        
+        // Test sustain pedal movement with Bézier curves
+        testMovementMap->addMovement(0.0, "sustain", 0.0, 1.0, 0.5, 0.0, "pedal_down");
+        testMovementMap->addMovement(960.0, "sustain", 1.0, 0.0, 0.5, 0.0, "pedal_up"); 
+        testMovementMap->addMovement(1920.0, "sustain", 0.0, 0.0, 0.0, 0.0, "end");
+        
+        // Test movement position calculation at different points
+        double position1 = testMovementMap->getPositionAt(240.0);   // 1/4 of the way through first transition
+        double position2 = testMovementMap->getPositionAt(480.0);   // 1/2 of the way through first transition  
+        double position3 = testMovementMap->getPositionAt(720.0);   // 3/4 of the way through first transition
+        
+        std::cout << "✓ Movement position at 1/4 transition: " << position1 << std::endl;
+        std::cout << "✓ Movement position at 1/2 transition: " << position2 << std::endl;
+        std::cout << "✓ Movement position at 3/4 transition: " << position3 << std::endl;
+        
+        // Test movement data retrieval
+        auto* retrievedMovementData = testMovementMap->getMovementDataAt(100.0);
+        if (retrievedMovementData) {
+            std::cout << "✓ Movement data retrieval working - controller: " << retrievedMovementData->controller << ", position: " << retrievedMovementData->position << std::endl;
+        }
+        
+        // Test position map rendering
+        auto positionMap = testMovementMap->renderMovementToMap();
+        if (positionMap) {
+            std::cout << "✓ Position map rendering successful" << std::endl;
+        }
+        
+        std::cout << "\n🎉 All tests passed! MovementMap has been successfully implemented!" << std::endl;
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
