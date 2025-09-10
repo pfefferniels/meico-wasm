@@ -88,9 +88,16 @@ std::string Msm::getTitle() const {
 int Msm::getPPQ() const {
     Element root = getRootElement();
     if (root) {
+        // Try camelCase first (our generated XML)
         auto ppqAttr = root.attribute("pulsesPerQuarter");
         if (ppqAttr) {
-            return xml::Helper::parseInt(ppqAttr.value(), 720); // default to 720
+            return xml::Helper::parseInt(ppqAttr.value(), 720);
+        }
+        
+        // Try all lowercase (Bach MSM test data format)
+        ppqAttr = root.attribute("pulsesperquarter");
+        if (ppqAttr) {
+            return xml::Helper::parseInt(ppqAttr.value(), 720);
         }
     }
     return 720; // default PPQ

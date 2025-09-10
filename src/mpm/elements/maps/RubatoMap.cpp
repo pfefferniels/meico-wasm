@@ -116,10 +116,11 @@ double RubatoMap::computeRubatoTransformation(double date, const RubatoData& rub
     // Apply the rubato transformation using the power function
     double transformedT = std::pow(t, rubatoData.intensity);
     
-    // Map to the lateStart-earlyEnd range
-    double d = (transformedT * (rubatoData.earlyEnd - rubatoData.lateStart) + rubatoData.lateStart) * rubatoData.frameLength;
+    // Map to the lateStart-earlyEnd range and compute timing adjustment
+    double transformedLocalDate = (transformedT * (rubatoData.earlyEnd - rubatoData.lateStart) + rubatoData.lateStart) * rubatoData.frameLength;
     
-    return date + d - localDate;
+    // Return the date adjusted by the transformation difference
+    return rubatoData.startDate + transformedLocalDate;
 }
 
 double RubatoMap::ensureIntensityBoundaries(double intensity) {
