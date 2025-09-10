@@ -3,6 +3,7 @@ meico-test: \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o \
   /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o \
   CMakeFiles/meico-test.dir/test/main.cpp.o \
+  CMakeFiles/meico-test.dir/test/mpm/MpmTestUtils.cpp.o \
   libmeico-cpp.a \
   /usr/lib/gcc/x86_64-linux-gnu/13/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/libm.so \
@@ -39,6 +40,8 @@ meico-test: \
 /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o:
 
 CMakeFiles/meico-test.dir/test/main.cpp.o:
+
+CMakeFiles/meico-test.dir/test/mpm/MpmTestUtils.cpp.o:
 
 libmeico-cpp.a:
 

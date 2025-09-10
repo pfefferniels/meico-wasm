@@ -211,6 +211,30 @@ externals/pugixml/pugixml.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/externals/pugixml/pugixml.cpp.s
 .PHONY : externals/pugixml/pugixml.cpp.s
 
+src/mpm/Mpm.o: src/mpm/Mpm.cpp.o
+.PHONY : src/mpm/Mpm.o
+
+# target to build an object file
+src/mpm/Mpm.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/mpm/Mpm.cpp.o
+.PHONY : src/mpm/Mpm.cpp.o
+
+src/mpm/Mpm.i: src/mpm/Mpm.cpp.i
+.PHONY : src/mpm/Mpm.i
+
+# target to preprocess a source file
+src/mpm/Mpm.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/mpm/Mpm.cpp.i
+.PHONY : src/mpm/Mpm.cpp.i
+
+src/mpm/Mpm.s: src/mpm/Mpm.cpp.s
+.PHONY : src/mpm/Mpm.s
+
+# target to generate assembly for a file
+src/mpm/Mpm.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/mpm/Mpm.cpp.s
+.PHONY : src/mpm/Mpm.cpp.s
+
 src/msm/AbstractMsm.o: src/msm/AbstractMsm.cpp.o
 .PHONY : src/msm/AbstractMsm.o
 
@@ -234,6 +258,54 @@ src/msm/AbstractMsm.s: src/msm/AbstractMsm.cpp.s
 src/msm/AbstractMsm.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/msm/AbstractMsm.cpp.s
 .PHONY : src/msm/AbstractMsm.cpp.s
+
+src/msm/Msm.o: src/msm/Msm.cpp.o
+.PHONY : src/msm/Msm.o
+
+# target to build an object file
+src/msm/Msm.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/msm/Msm.cpp.o
+.PHONY : src/msm/Msm.cpp.o
+
+src/msm/Msm.i: src/msm/Msm.cpp.i
+.PHONY : src/msm/Msm.i
+
+# target to preprocess a source file
+src/msm/Msm.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/msm/Msm.cpp.i
+.PHONY : src/msm/Msm.cpp.i
+
+src/msm/Msm.s: src/msm/Msm.cpp.s
+.PHONY : src/msm/Msm.s
+
+# target to generate assembly for a file
+src/msm/Msm.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/msm/Msm.cpp.s
+.PHONY : src/msm/Msm.cpp.s
+
+src/supplementary/KeyValue.o: src/supplementary/KeyValue.cpp.o
+.PHONY : src/supplementary/KeyValue.o
+
+# target to build an object file
+src/supplementary/KeyValue.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/supplementary/KeyValue.cpp.o
+.PHONY : src/supplementary/KeyValue.cpp.o
+
+src/supplementary/KeyValue.i: src/supplementary/KeyValue.cpp.i
+.PHONY : src/supplementary/KeyValue.i
+
+# target to preprocess a source file
+src/supplementary/KeyValue.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/supplementary/KeyValue.cpp.i
+.PHONY : src/supplementary/KeyValue.cpp.i
+
+src/supplementary/KeyValue.s: src/supplementary/KeyValue.cpp.s
+.PHONY : src/supplementary/KeyValue.s
+
+# target to generate assembly for a file
+src/supplementary/KeyValue.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-cpp.dir/build.make CMakeFiles/meico-cpp.dir/src/supplementary/KeyValue.cpp.s
+.PHONY : src/supplementary/KeyValue.cpp.s
 
 src/xml/AbstractXmlSubtree.o: src/xml/AbstractXmlSubtree.cpp.o
 .PHONY : src/xml/AbstractXmlSubtree.o
@@ -331,6 +403,30 @@ test/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-test.dir/build.make CMakeFiles/meico-test.dir/test/main.cpp.s
 .PHONY : test/main.cpp.s
 
+test/mpm/MpmTestUtils.o: test/mpm/MpmTestUtils.cpp.o
+.PHONY : test/mpm/MpmTestUtils.o
+
+# target to build an object file
+test/mpm/MpmTestUtils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-test.dir/build.make CMakeFiles/meico-test.dir/test/mpm/MpmTestUtils.cpp.o
+.PHONY : test/mpm/MpmTestUtils.cpp.o
+
+test/mpm/MpmTestUtils.i: test/mpm/MpmTestUtils.cpp.i
+.PHONY : test/mpm/MpmTestUtils.i
+
+# target to preprocess a source file
+test/mpm/MpmTestUtils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-test.dir/build.make CMakeFiles/meico-test.dir/test/mpm/MpmTestUtils.cpp.i
+.PHONY : test/mpm/MpmTestUtils.cpp.i
+
+test/mpm/MpmTestUtils.s: test/mpm/MpmTestUtils.cpp.s
+.PHONY : test/mpm/MpmTestUtils.s
+
+# target to generate assembly for a file
+test/mpm/MpmTestUtils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/meico-test.dir/build.make CMakeFiles/meico-test.dir/test/mpm/MpmTestUtils.cpp.s
+.PHONY : test/mpm/MpmTestUtils.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -348,9 +444,18 @@ help:
 	@echo "... externals/pugixml/pugixml.o"
 	@echo "... externals/pugixml/pugixml.i"
 	@echo "... externals/pugixml/pugixml.s"
+	@echo "... src/mpm/Mpm.o"
+	@echo "... src/mpm/Mpm.i"
+	@echo "... src/mpm/Mpm.s"
 	@echo "... src/msm/AbstractMsm.o"
 	@echo "... src/msm/AbstractMsm.i"
 	@echo "... src/msm/AbstractMsm.s"
+	@echo "... src/msm/Msm.o"
+	@echo "... src/msm/Msm.i"
+	@echo "... src/msm/Msm.s"
+	@echo "... src/supplementary/KeyValue.o"
+	@echo "... src/supplementary/KeyValue.i"
+	@echo "... src/supplementary/KeyValue.s"
 	@echo "... src/xml/AbstractXmlSubtree.o"
 	@echo "... src/xml/AbstractXmlSubtree.i"
 	@echo "... src/xml/AbstractXmlSubtree.s"
@@ -363,6 +468,9 @@ help:
 	@echo "... test/main.o"
 	@echo "... test/main.i"
 	@echo "... test/main.s"
+	@echo "... test/mpm/MpmTestUtils.o"
+	@echo "... test/mpm/MpmTestUtils.i"
+	@echo "... test/mpm/MpmTestUtils.s"
 .PHONY : help
 
 

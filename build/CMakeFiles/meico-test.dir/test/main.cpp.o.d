@@ -224,4 +224,10 @@ CMakeFiles/meico-test.dir/test/main.cpp.o: \
  /usr/include/c++/13/bits/regex_executor.tcc \
  /usr/include/c++/13/functional /usr/include/c++/13/array \
  /usr/include/c++/13/compare \
- /home/runner/work/meico-wasm/meico-wasm/include/msm/AbstractMsm.h
+ /home/runner/work/meico-wasm/meico-wasm/include/msm/AbstractMsm.h \
+ /home/runner/work/meico-wasm/meico-wasm/include/msm/Msm.h \
+ /home/runner/work/meico-wasm/meico-wasm/include/mpm/Mpm.h \
+ /home/runner/work/meico-wasm/meico-wasm/include/mpm/elements/Performance.h \
+ /home/runner/work/meico-wasm/meico-wasm/include/xml/AbstractXmlSubtree.h \
+ /home/runner/work/meico-wasm/meico-wasm/include/mpm/elements/metadata/Metadata.h \
+ /home/runner/work/meico-wasm/meico-wasm/test/mpm/MpmTestUtils.h

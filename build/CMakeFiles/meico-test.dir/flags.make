@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/runner/work/meico-wasm/meico-wasm/include -I/home/runner/work/meico-wasm/meico-wasm/externals/pugixml
+CXX_INCLUDES = -I/home/runner/work/meico-wasm/meico-wasm/include -I/home/runner/work/meico-wasm/meico-wasm/externals/pugixml -I/home/runner/work/meico-wasm/meico-wasm/test
 
 CXX_FLAGS = -std=gnu++17
 

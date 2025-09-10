@@ -16,6 +16,9 @@ set(SOURCES
     src/xml/AbstractXmlSubtree.cpp
     src/xml/Helper.cpp
     src/msm/AbstractMsm.cpp
+    src/msm/Msm.cpp
+    src/mpm/Mpm.cpp
+    src/supplementary/KeyValue.cpp
 )
 
 # Header files
@@ -24,6 +27,9 @@ set(HEADERS
     include/xml/AbstractXmlSubtree.h
     include/xml/Helper.h
     include/msm/AbstractMsm.h
+    include/msm/Msm.h
+    include/mpm/Mpm.h
+    include/supplementary/KeyValue.h
     include/common/common.h
 )
 
@@ -33,9 +39,11 @@ add_library(meico-cpp STATIC ${SOURCES} ${HEADERS})
 # Test executable
 add_executable(meico-test
     test/main.cpp
+    test/mpm/MpmTestUtils.cpp
 )
 
 target_link_libraries(meico-test meico-cpp)
+target_include_directories(meico-test PRIVATE test)
 
 # Install
 install(TARGETS meico-cpp
