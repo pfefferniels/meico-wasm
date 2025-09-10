@@ -168,10 +168,48 @@ double TempoMap::computeDiffTiming(double date, int ppq, const TempoData* tempoD
 }
 
 bool TempoMap::applyToMsmPart(Element msmPart) {
-    // For tempo maps, we typically don't modify individual notes
-    // but rather provide timing information at a higher level
-    std::cout << "TempoMap timing application would be implemented here" << std::endl;
-    return false;  // No direct modifications to notes
+    if (!msmPart || tempoData.empty()) {
+        return false;
+    }
+    
+    bool modified = false;
+    
+    // Find all note elements in the part - try both direct dated and header/dated paths
+    Element scoreElement;
+    
+    // First try: part -> dated -> score (for some MSM structures)
+    scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
+    if (scoreElement) {
+        scoreElement = xml::Helper::getFirstChildElement(scoreElement, "score");
+    }
+    
+    // If not found, try: part -> header -> dated -> score (for Bach MSM structure)
+    if (!scoreElement) {
+        auto headerElement = xml::Helper::getFirstChildElement(msmPart, "header");
+        if (headerElement) {
+            auto datedElement = xml::Helper::getFirstChildElement(headerElement, "dated");
+            if (datedElement) {
+                scoreElement = xml::Helper::getFirstChildElement(datedElement, "score");
+            }
+        }
+    }
+    
+    if (scoreElement) {
+        // Process all notes to add timing-related attributes
+        for (auto note : scoreElement.children("note")) {
+            auto dateAttr = note.attribute("date");
+            if (dateAttr) {
+                double noteDate = xml::Helper::parseDouble(dateAttr.value());
+                double currentTempo = getTempoAt(noteDate);
+                
+                // Add tempo information as an attribute for downstream processing
+                note.append_attribute("tempo") = std::to_string(currentTempo).c_str();
+                modified = true;
+            }
+        }
+    }
+    
+    return modified;
 }
 
 void TempoMap::parseData(const Element& xmlElement) {

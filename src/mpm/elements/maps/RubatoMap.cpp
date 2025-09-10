@@ -170,10 +170,53 @@ double RubatoMap::getEndDate(int index) {
 }
 
 bool RubatoMap::applyToMsmPart(Element msmPart) {
-    // For rubato maps, we typically don't modify individual notes directly
-    // but rather provide timing transformations at a higher level
-    std::cout << "RubatoMap timing application would be implemented here" << std::endl;
-    return false;  // No direct modifications to notes
+    if (!msmPart || rubatoData.empty()) {
+        return false;
+    }
+    
+    bool modified = false;
+    
+    // Find all note elements in the part - try both direct dated and header/dated paths
+    Element scoreElement;
+    
+    // First try: part -> dated -> score (for some MSM structures)
+    scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
+    if (scoreElement) {
+        scoreElement = xml::Helper::getFirstChildElement(scoreElement, "score");
+    }
+    
+    // If not found, try: part -> header -> dated -> score (for Bach MSM structure)
+    if (!scoreElement) {
+        auto headerElement = xml::Helper::getFirstChildElement(msmPart, "header");
+        if (headerElement) {
+            auto datedElement = xml::Helper::getFirstChildElement(headerElement, "dated");
+            if (datedElement) {
+                scoreElement = xml::Helper::getFirstChildElement(datedElement, "score");
+            }
+        }
+    }
+    
+    if (scoreElement) {
+        // Process all notes to apply rubato timing transformations
+        for (auto note : scoreElement.children("note")) {
+            auto dateAttr = note.attribute("date");
+            if (dateAttr) {
+                double originalDate = xml::Helper::parseDouble(dateAttr.value());
+                
+                // Find applicable rubato data for this note
+                auto rubatoDataPtr = getRubatoDataAt(originalDate);
+                if (rubatoDataPtr) {
+                    double transformedDate = computeRubatoTransformation(originalDate, *rubatoDataPtr);
+                    
+                    // Update the date attribute with the rubato transformation
+                    dateAttr.set_value(std::to_string(transformedDate).c_str());
+                    modified = true;
+                }
+            }
+        }
+    }
+    
+    return modified;
 }
 
 void RubatoMap::parseData(const Element& xmlElement) {
