@@ -175,6 +175,9 @@ public class MpmTestUtils {
             case Mpm.METRICAL_ACCENTUATION_MAP:
                 map = MetricalAccentuationMap.createMetricalAccentuationMap();
                 break;
+            case Mpm.ORNAMENTATION_MAP:
+                map = OrnamentationMap.createOrnamentationMap();
+                break;
             default:
                 map = GenericMap.createGenericMap(mapType);
                 break;

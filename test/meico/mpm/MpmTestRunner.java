@@ -22,6 +22,10 @@ public class MpmTestRunner {
         DynamicsMapTest.runAllTests();
         TempoMapTest.runAllTests();
         MetricalAccentuationMapTest.runAllTests();
+        OrnamentationMapTest.runAllTests();
+        
+        // Integration tests
+        MpmIntegrationTest.runAllTests();
         
         // TODO: Add more map type tests as they are implemented
         // RubatoMapTest.runAllTests();
