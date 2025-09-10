@@ -109,18 +109,12 @@ void RubatoMap::renderRubatoToMap(GenericMap& map, RubatoMap& rubatoMap) {
 }
 
 double RubatoMap::computeRubatoTransformation(double date, const RubatoData& rubatoData) {
-    // This is the core algorithm from the Java implementation
+    // Port exact Java algorithm from lines 335-338 of RubatoMap.java
     double localDate = fmod(date - rubatoData.startDate, rubatoData.frameLength);
-    double t = localDate / rubatoData.frameLength;
+    double d = (std::pow(localDate / rubatoData.frameLength, rubatoData.intensity) * (rubatoData.earlyEnd - rubatoData.lateStart) + rubatoData.lateStart) * rubatoData.frameLength;
     
-    // Apply the rubato transformation using the power function
-    double transformedT = std::pow(t, rubatoData.intensity);
-    
-    // Map to the lateStart-earlyEnd range and compute timing adjustment
-    double transformedLocalDate = (transformedT * (rubatoData.earlyEnd - rubatoData.lateStart) + rubatoData.lateStart) * rubatoData.frameLength;
-    
-    // Return the date adjusted by the transformation difference
-    return rubatoData.startDate + transformedLocalDate;
+    // Java formula: return date + d - localDate;
+    return date + d - localDate;
 }
 
 double RubatoMap::ensureIntensityBoundaries(double intensity) {

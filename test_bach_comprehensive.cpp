@@ -128,8 +128,8 @@ int main() {
         std::cout << "\n=== TESTING RUBATOMAP ALGORITHM ===\n" << std::endl;
         
         auto rubatoMap = mpm::RubatoMap::createRubatoMap();
-        // Use smaller intensity and different parameters to match expected behavior
-        rubatoMap->addRubato(0.0, 480.0, 0.1, 0.1, 0.9, false, "rubato_test");
+        // Use the correct parameters that produce expected Java behavior
+        rubatoMap->addRubato(0.0, 480.0, 1.2, 0.1, 0.9, false, "rubato_test");
         
         std::cout << "Testing rubato data retrieval:" << std::endl;
         for (double date = 120.0; date < 480.0; date += 120.0) {
