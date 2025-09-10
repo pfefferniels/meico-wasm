@@ -2,9 +2,7 @@ package meico.mei;
 
 import meico.mpm.Mpm;
 import meico.msm.Msm;
-import meico.musicxml.MusicXml;
 import meico.supplementary.KeyValue;
-import meico.svg.SvgCollection;
 import nu.xom.*;
 import org.xml.sax.SAXException;
 
@@ -244,58 +242,6 @@ public class Mei extends meico.xml.XmlBase {
     }
 
     /**
-     * convert MEI to SVG
-     * @return
-     */
-    public SvgCollection exportSvg() {
-        return this.exportSvg(true, false);
-    }
-
-    /**
-     * convert MEI to SVG
-     * TODO: so far, this is just a placeholder, cannot evaluate Verovio in the Nashorn engine, same problem as in MusicXml.exportMei()
-     * @param useOnlineVerovio
-     * @param oneLineScore
-     * @return a collection of SVGs; it can be empty if the conversion fails
-     */
-    public SvgCollection exportSvg(boolean useOnlineVerovio, boolean oneLineScore) {
-        long startTime = System.currentTimeMillis();                            // we measure the time that the conversion consumes
-        System.out.println("\nConverting " + ((this.file != null) ? this.file.getName() : "MEI data") + " to SVG.");
-
-        SvgCollection svgs = new SvgCollection();                               // create an svg collection
-        svgs.setTitle(this.getTitle());                                         // set the title of the svg collection to the title of this mei
-
-        // this code block is just a debug output for development
-//        List<ScriptEngineFactory> engines = (new ScriptEngineManager()).getEngineFactories();
-//        for (ScriptEngineFactory f: engines) {
-//            System.out.println(f.getLanguageName()+" "+f.getEngineName()+" "+f.getNames().toString()+" "+f.getLanguageVersion());
-//        }
-
-        // non-functional code
-//        ScriptEngineManager manager = new ScriptEngineManager();
-//        ScriptEngine engine = manager.getEngineByName("JavaScript");
-//
-//        String verovio = (useOnlineVerovio) ? VerovioProvider.getVerovio(this) : VerovioProvider.getLocalVerovio(this); // get the Verovio Toolkit script
-//        if (verovio == null) {                                                  // if this fails
-//            System.err.println("MEI to SVG conversion failed: Verovio Toolkit not available. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-//            return svgs;                                                        // return empty svgs collection
-//        }
-//
-//        engine.put("mei", this.toXML());
-//        try {
-//            engine.eval(verovio);   // TODO: this fails because Verovio requires a browser environment
-//            // TODO: do the meaningful stuff ...
-//        } catch (ScriptException e) {
-//            System.err.println("MEI to SVG conversion failed: script evaluation failed. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-//            return svgs;
-//        }
-
-        System.out.println("MEI to SVG conversion finished. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-
-        return svgs;
-    }
-
-    /**
      * converts the mei data into msm format and returns a list of Msm instances, one per movement/mdiv; the thime resolution (pulses per quarter note) is 720 by default or more if required (for very short note durations)
      * @return the list of msm documents (movements) created
      */
@@ -393,24 +339,6 @@ public class Mei extends meico.xml.XmlBase {
      */
     public synchronized KeyValue<List<Msm>, List<Mpm>> exportMsmMpm(int ppq, boolean dontUseChannel10, boolean ignoreExpansions, boolean cleanup) {
         return (new Mei2MsmMpmConverter(ppq, dontUseChannel10, ignoreExpansions, cleanup)).convert(this);
-    }
-
-    /**
-     * converts the MEI data to MusicXML and returns a list of MusicXml objects, one per movement/mdiv;
-     * MEI expansions are resolved
-     * @return
-     */
-    public synchronized List<MusicXml> exportMusicXml() {
-        return this.exportMusicXml(false);
-    }
-
-    /**
-     * converts the MEI data to MusicXML and returns a list of MusicXml objects, one per movement/mdiv
-     * @param ignoreExpansions set this true to have a 1:1 conversion of MEI to MusicXML without the rearrangement that MEI's expansion elements produce
-     * @return
-     */
-    public synchronized List<MusicXml> exportMusicXml(boolean ignoreExpansions) {
-        return (new Mei2MusicXmlConverter(ignoreExpansions)).convert(this);
     }
 
     /**

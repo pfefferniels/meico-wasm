@@ -1,9 +1,7 @@
 package meico.msm;
 
 import meico.mpm.elements.Performance;
-import meico.pitches.FeatureVector;
-import meico.pitches.Key;
-import meico.pitches.Pitches;
+
 import meico.mei.Helper;
 import meico.midi.*;
 import meico.supplementary.KeyValue;
@@ -1237,76 +1235,7 @@ public class Msm extends AbstractMsm {
         return latestOffset;
     }
 
-    /**
-     * export standard chroma features with 12 semitones in equal temperament and A = 440 Hz
-     * @return
-     */
-    public Pitches exportChroma() {
-        return this.exportPitches(new Key(Key.chromaReferenceFrequenciesEqualTemperament440, true));
-    }
 
-    /**
-     * export absolute pitches from the MSM score data with 12 semitones per octave in equal temperament and A = 440 Hz,
-     * this conforms to the MIDI standard with 0 being the lowest and 127 the highest possible pitch.
-     * @return
-     */
-    public Pitches exportPitches() {
-        return this.exportPitches(new Key(Key.midiReferenceFrequenciesEqualTemperament440, false));
-    }
-
-    /**
-     * export absolute pitches from the MSM score data
-     * @param key the key with reference frequencies and octave modulo setting
-     * @return
-     */
-    public Pitches exportPitches(Key key) {
-        long startTime = System.currentTimeMillis();                                                    // we measure the time that the conversion consumes
-        System.out.println("\nConverting " + ((this.file != null) ? this.file.getName() : "MSM data") + " to pitch data.");
-        Pitches pitches = new Pitches(key); // create Pitches object with equal temperament and A = 440 Hz
-        pitches.setFile(Helper.getFilenameWithoutExtension(this.getFile().getPath()) + ".json");        // set a filename for the pitches
-
-        int minPPQ = this.getMinimalPPQ();
-        double timingReductionFactor = (double)this.getPPQ() / minPPQ;                                  // for memory efficiency it is highly required reduce the frame count, this here is the factor for this
-        System.out.print("timing is reduced to " + minPPQ + " ppq ... ");
-
-        // for each note in the music add its pitches vectors to the pitches object
-        Elements parts = this.getRootElement().getChildElements("part");                                // get all parts
-        for (int i = 0; i < parts.size(); ++i) {                                                        // in each part
-            Elements notes = parts.get(i).getFirstChildElement("dated").getFirstChildElement("score").getChildElements("note");    // navigate to the note elements
-            for (int j = notes.size()-1; j >= 0; --j) {                                                 // go through all notes
-                Element note = notes.get(j);                                                            // get a note
-
-                int date = (int)Double.parseDouble(note.getAttributeValue("date"));                     // get its date
-                int noteOff = date + (int)Double.parseDouble(note.getAttributeValue("duration"));       // compute its noteOff date
-
-                double pitch = Double.parseDouble(note.getAttributeValue("midi.pitch"));                // get its pitch
-                if (key.getOctaveModulo()) pitch %= key.getSize();                                      // if the feature represents pitch classes do the modulo operation on the pitch value
-                else if (pitch > (key.getSize()-1)) pitch = key.getSize()-1;                            // clip extremely high pitch values at highest possible value
-                else if (pitch < 0.0) pitch = 0.0;                                                      // clip pitch values lower than 0.0
-
-                // create the FeatureVector
-                FeatureVector feature = new FeatureVector(key);
-                feature.getFeatureElement((int) pitch).addEnergy(1.0);
-
-                // associate this note's xml:id with the FeatureElement
-                Attribute noteId =  note.getAttribute("id", "http://www.w3.org/XML/1998/namespace");
-                if (noteId != null)
-                    feature.getFeatureElement((int) pitch).addNoteId(noteId.getValue());
-
-                // do timing reduction
-                date /= timingReductionFactor;
-                noteOff /= timingReductionFactor;
-
-                // generate pitch data
-                for (int k = date; k < noteOff; ++k)                                                    // for as long as the note duration says
-                    pitches.addFeatureAt(k, feature);                                                   // add the feature vector to pitches (midi tick-wise)
-            }
-        }
-
-        System.out.println("MSM to pitch data conversion finished. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
-
-        return pitches;      // output the result
-    }
 
     /**
      * a helper method for parsing the milliseconds date of an element

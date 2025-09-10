@@ -1,6 +1,6 @@
 package meico.supplementary;
 
-import meico.audio.Audio;
+
 
 import javax.sound.sampled.AudioFormat;
 import java.io.File;
@@ -397,52 +397,4 @@ public class RandomNumberProvider {
         return result;
     }
 
-    /**
-     * This method can be used to generate audio data of the specified length from this RandomNumberProvider's distribution.
-     * Be aware that the lower limit should not be lower than -1.0 an dthe upper limit should not be greater than 1.0! Set lowerLimit and upperLimit or lowCut and highCut accordingly!
-     * @param seconds
-     * @return
-     */
-    public Audio generateAudio(double seconds) {
-        int length = (int)(44100.0 * seconds);                              // compute array length, we assume that the audio should be at 44100 sample rate
-        double[] doubles = new double[length];                              // create double array from this's serien
-
-        if (this.getDistributionType() == RandomNumberProvider.DISTRIBUTION_LIST) { // distribution lists are read a bit different than the other random number series
-            for (int i = 0; i < length; ++i)
-                doubles[i] = this.series.get(i % this.series.size());
-        } else {
-            this.getValue(length - 1);                                      // make sure we have enough values in the series
-            for (int i = 0; i < this.series.size(); ++i)
-                doubles[i] = this.series.get(i);
-        }
-        byte[] bytes = Audio.convertDoubleArray2ByteArray(doubles, 16);     // make a byte array from it
-
-        AudioFormat format = new AudioFormat(44100.0f, 16, 1, true, false); // create audio format
-
-        File file = null;
-        switch (this.distributionType) {
-            case RandomNumberProvider.DISTRIBUTION_UNIFORM:
-                file = new File("uniformNoise.wav");
-                break;
-            case RandomNumberProvider.DISTRIBUTION_GAUSSIAN:
-                file = new File("gaussianNoise.wav");
-                break;
-            case RandomNumberProvider.DISTRIBUTION_TRIANGULAR:
-                file = new File("triangleNoise.wav");
-                break;
-            case RandomNumberProvider.DISTRIBUTION_CORRELATED_BROWNIANNOISE:
-                file = new File("brownianNoise.wav");
-                break;
-            case RandomNumberProvider.DISTRIBUTION_CORRELATED_COMPENSATING_TRIANGLE:
-                file = new File("compensatingTriangleNoise.wav");
-                break;
-            case RandomNumberProvider.DISTRIBUTION_LIST:
-                file = new File("distributionListNoise.wav");
-                break;
-            default:
-                break;
-        }
-
-        return new Audio(bytes, format, file);
-    }
 }
