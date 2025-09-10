@@ -510,7 +510,7 @@ public class Performance extends AbstractXmlSubtree {
                 Performance.addPerformanceTimingAttributes(channelVolumeMap);                       // add the .perf attributes
             }
 
-            GenericMap positionMap = movementMap.renderMovementToMap();
+            GenericMap positionMap = MovementMap.renderMovementToMap(movementMap);
             if (positionMap != null) {
                 dated.appendChild(positionMap.getXml());
                 Performance.addPerformanceTimingAttributes(positionMap);
@@ -558,7 +558,7 @@ public class Performance extends AbstractXmlSubtree {
 //            // do something
 //        }
 
-        System.out.println("Performance rendering finished. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
+        System.out.println("huhu. Performance rendering finished. Time consumed: " + (System.currentTimeMillis() - startTime) + " milliseconds");
 
         return clone;
     }

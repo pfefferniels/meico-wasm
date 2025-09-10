@@ -577,6 +577,22 @@ public class EventMaker {
     }
 
     /**
+     * create a plain text event
+     * @param date
+     * @param name
+     * @return
+     */
+    public static MidiEvent createTextEvent(long date, String plainText) {
+        byte[] text = plainText.getBytes();
+        try {
+            return new MidiEvent(new MetaMessage(META_Text_Event, text, text.length), date);
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * create a marker event
      * @param date
      * @param markerText

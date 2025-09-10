@@ -1015,6 +1015,9 @@ public class Msm extends AbstractMsm {
 
                 Attribute velocityAtt = Helper.getAttribute("velocity", n);                                         // get the velocity attribute
                 int velocity = (velocityAtt == null) ? 100 : Math.round(Float.parseFloat(velocityAtt.getValue()));  // if there is no velocity attribute set velocity to 100 by default, otherwise Math.round(float) outputs the integer velocity
+
+                Attribute xmlId = n.getAttribute("id", "http://www.w3.org/XML/1998/namespace");
+                track.add(EventMaker.createTextEvent(date, xmlId == null ? "unknown" : xmlId.getValue()));
                 track.add(EventMaker.createNoteOn(chan, date, pitch, velocity));
 
                 long dateEnd;
@@ -1028,7 +1031,9 @@ public class Msm extends AbstractMsm {
                 }
                 track.add(EventMaker.createNoteOff(chan, dateEnd, pitch, 0));
             } else {
-                long date = Math.round(Double.parseDouble(Helper.getAttributeValue("date", n)));                    // Math.round(double) returns long
+                long date = Math.round(Double.parseDouble(Helper.getAttributeValue("date", n)));
+                String xmlId = Helper.getAttributeValue("xml:id", n);
+                track.add(EventMaker.createTextEvent(date, xmlId));
                 track.add(EventMaker.createNoteOn(chan, date, pitch, 100));
 
                 long dur = Math.round(Double.parseDouble(Helper.getAttributeValue("duration", n)));

@@ -215,6 +215,12 @@ public class MovementMap extends GenericMap {
         return movementMap;
     }
 
+    public static GenericMap renderMovementToMap(MovementMap movementMap) {
+        if (movementMap == null) return null;
+        return movementMap.renderMovementToMap();
+    }
+
+
     /**
      * a helper method for the implementation of movements.
      * It generates a series position events and adds them to
