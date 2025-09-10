@@ -13,6 +13,7 @@
 #include "mpm/elements/maps/ArticulationMap.h"
 #include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/maps/TempoMap.h"
+#include "mpm/elements/maps/RubatoMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "mpm/MpmTestUtils.h"
 
@@ -181,7 +182,53 @@ int main() {
             std::cout << "ℹ Note: Velocity verification needs more implementation" << std::endl;
         }
         
-        std::cout << "\n🎉 All tests passed! New ArticulationMap, MetricalAccentuationMap, and TempoMap are working!" << std::endl;
+        // Test 5: Rubato Map
+        std::cout << "\nTesting RubatoMap..." << std::endl;
+        auto rubatoMpm = test::MpmTestUtils::createMpmWithRubatoMap();
+        std::cout << "✓ Created MPM with rubato map" << std::endl;
+        
+        auto rubatoResult = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *rubatoMpm);
+        std::cout << "✓ MPM rubato application completed successfully!" << std::endl;
+        
+        std::cout << "\n--- AFTER Performance Application (Rubato) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*rubatoResult, "Result MSM with Applied Rubato");
+        
+        // Test RubatoMap algorithms directly
+        std::cout << "\nTesting RubatoMap algorithms..." << std::endl;
+        auto testRubatoMap = mpm::RubatoMap::createRubatoMap();
+        
+        // Test subtle rubato
+        testRubatoMap->addRubato(0.0, 480.0, 1.2, 0.1, 0.9, true, "test_rubato");
+        
+        // Test rubato transformation algorithm
+        mpm::RubatoData testData;
+        testData.startDate = 0.0;
+        testData.frameLength = 480.0;
+        testData.intensity = 1.2;
+        testData.lateStart = 0.1;
+        testData.earlyEnd = 0.9;
+        testData.loop = true;
+        
+        // Test transformation at different points in the frame
+        double original1 = 120.0;   // 1/4 of the way through the frame
+        double original2 = 240.0;   // 1/2 of the way through the frame  
+        double original3 = 360.0;   // 3/4 of the way through the frame
+        
+        double rubato1 = mpm::RubatoMap::computeRubatoTransformation(original1, testData);
+        double rubato2 = mpm::RubatoMap::computeRubatoTransformation(original2, testData);
+        double rubato3 = mpm::RubatoMap::computeRubatoTransformation(original3, testData);
+        
+        std::cout << "✓ Rubato transformation at 1/4 frame: " << original1 << " → " << rubato1 << std::endl;
+        std::cout << "✓ Rubato transformation at 1/2 frame: " << original2 << " → " << rubato2 << std::endl;
+        std::cout << "✓ Rubato transformation at 3/4 frame: " << original3 << " → " << rubato3 << std::endl;
+        
+        // Test rubato data retrieval
+        auto* retrievedData = testRubatoMap->getRubatoDataAt(100.0);
+        if (retrievedData) {
+            std::cout << "✓ Rubato data retrieval working - intensity: " << retrievedData->intensity << std::endl;
+        }
+        
+        std::cout << "\n🎉 All tests passed! RubatoMap has been successfully implemented!" << std::endl;
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

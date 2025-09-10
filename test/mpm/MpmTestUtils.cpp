@@ -7,6 +7,7 @@
 #include "mpm/elements/maps/ArticulationMap.h"
 #include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/maps/TempoMap.h"
+#include "mpm/elements/maps/RubatoMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -219,6 +220,32 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithTempoMap() {
             
             // Add the map to the performance
             performance->getGlobal()->getDated()->addMap(std::move(tempoMap));
+        }
+    }
+    
+    return mpm;
+}
+
+std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithRubatoMap() {
+    auto mpm = createBasicMpm();
+    
+    if (mpm->size() > 0) {
+        auto* performance = mpm->getPerformance(0);
+        if (performance && performance->getGlobal()) {
+            // Create rubato map with some test data
+            auto rubatoMap = mpm::RubatoMap::createRubatoMap();
+            
+            // Add subtle rubato: frame length 240 ticks (quarter note), intensity 0.8
+            rubatoMap->addRubato(0.0, 240.0, 0.8, 0.1, 0.9, true, "subtle_rub");
+            
+            // Add stronger rubato: frame length 480 ticks (half note), intensity 1.5
+            rubatoMap->addRubato(960.0, 480.0, 1.5, 0.2, 0.8, false, "strong_rub");
+            
+            // Add expressive rubato: frame length 720 ticks, intensity 1.2
+            rubatoMap->addRubato(1920.0, 720.0, 1.2, 0.15, 0.85, true, "expr_rub");
+            
+            // Add the map to the performance
+            performance->getGlobal()->getDated()->addMap(std::move(rubatoMap));
         }
     }
     

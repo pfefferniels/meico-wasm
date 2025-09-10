@@ -58,6 +58,12 @@ public:
     static std::unique_ptr<mpm::Mpm> createMpmWithTempoMap();
 
     /**
+     * Creates an MPM document with rubato map for testing.
+     * @return MPM document with rubato map
+     */
+    static std::unique_ptr<mpm::Mpm> createMpmWithRubatoMap();
+
+    /**
      * Applies an MPM performance to an MSM and returns the result.
      * @param msm The input MSM
      * @param mpm The MPM to apply

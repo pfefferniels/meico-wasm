@@ -28,9 +28,11 @@ set(SOURCES
     src/mpm/elements/maps/data/ArticulationData.cpp
     src/mpm/elements/maps/data/MetricalAccentuationData.cpp
     src/mpm/elements/maps/data/TempoData.cpp
+    src/mpm/elements/maps/data/RubatoData.cpp
     src/mpm/elements/maps/ArticulationMap.cpp
     src/mpm/elements/maps/MetricalAccentuationMap.cpp
     src/mpm/elements/maps/TempoMap.cpp
+    src/mpm/elements/maps/RubatoMap.cpp
     src/supplementary/KeyValue.cpp
 )
 
@@ -52,9 +54,11 @@ set(HEADERS
     include/mpm/elements/maps/data/ArticulationData.h
     include/mpm/elements/maps/data/MetricalAccentuationData.h
     include/mpm/elements/maps/data/TempoData.h
+    include/mpm/elements/maps/data/RubatoData.h
     include/mpm/elements/maps/ArticulationMap.h
     include/mpm/elements/maps/MetricalAccentuationMap.h
     include/mpm/elements/maps/TempoMap.h
+    include/mpm/elements/maps/RubatoMap.h
     include/mpm/elements/metadata/Metadata.h
     include/supplementary/KeyValue.h
     include/common/common.h
