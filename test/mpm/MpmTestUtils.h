@@ -40,6 +40,18 @@ public:
     static std::unique_ptr<mpm::Mpm> createMpmWithMap(const std::string& mapType);
 
     /**
+     * Creates an MPM document with articulation map for testing.
+     * @return MPM document with articulation map
+     */
+    static std::unique_ptr<mpm::Mpm> createMpmWithArticulationMap();
+
+    /**
+     * Creates an MPM document with metrical accentuation map for testing.
+     * @return MPM document with metrical accentuation map
+     */
+    static std::unique_ptr<mpm::Mpm> createMpmWithMetricalAccentuationMap();
+
+    /**
      * Applies an MPM performance to an MSM and returns the result.
      * @param msm The input MSM
      * @param mpm The MPM to apply

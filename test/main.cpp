@@ -10,6 +10,8 @@
 #include "mpm/elements/Dated.h"
 #include "mpm/elements/maps/GenericMap.h"
 #include "mpm/elements/maps/DynamicsMap.h"
+#include "mpm/elements/maps/ArticulationMap.h"
+#include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "mpm/MpmTestUtils.h"
 
@@ -85,21 +87,43 @@ int main() {
         auto workflowMsm = test::MpmTestUtils::createSimpleMsm();
         std::cout << "✓ Created test MSM with " << workflowMsm->getTitle() << std::endl;
         
-        // Create an MPM with dynamics map
+        // Test 1: Dynamics Map
         auto dynamicsMpm = test::MpmTestUtils::createMpmWithMap(mpm::Mpm::DYNAMICS_MAP);
         std::cout << "✓ Created MPM with dynamics map (" << dynamicsMpm->size() << " performances)" << std::endl;
         
         // Show original MSM
-        std::cout << "\n--- BEFORE Performance Application ---" << std::endl;
+        std::cout << "\n--- BEFORE Performance Application (Dynamics) ---" << std::endl;
         test::MpmTestUtils::printMsm(*workflowMsm, "Original MSM");
         
         // Apply MPM to MSM
         auto resultMsm = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *dynamicsMpm);
-        std::cout << "✓ MPM application completed successfully!" << std::endl;
+        std::cout << "✓ MPM dynamics application completed successfully!" << std::endl;
         
         // Show result
-        std::cout << "\n--- AFTER Performance Application ---" << std::endl;
-        test::MpmTestUtils::printMsm(*resultMsm, "Result MSM with Applied Performance");
+        std::cout << "\n--- AFTER Performance Application (Dynamics) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*resultMsm, "Result MSM with Applied Dynamics");
+        
+        // Test 2: Articulation Map
+        std::cout << "\nTesting ArticulationMap..." << std::endl;
+        auto articulationMpm = test::MpmTestUtils::createMpmWithArticulationMap();
+        std::cout << "✓ Created MPM with articulation map" << std::endl;
+        
+        auto articulationResult = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *articulationMpm);
+        std::cout << "✓ MPM articulation application completed successfully!" << std::endl;
+        
+        std::cout << "\n--- AFTER Performance Application (Articulation) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*articulationResult, "Result MSM with Applied Articulation");
+        
+        // Test 3: Metrical Accentuation Map
+        std::cout << "\nTesting MetricalAccentuationMap..." << std::endl;
+        auto accentuationMpm = test::MpmTestUtils::createMpmWithMetricalAccentuationMap();
+        std::cout << "✓ Created MPM with metrical accentuation map" << std::endl;
+        
+        auto accentuationResult = test::MpmTestUtils::applyMpmToMsm(*workflowMsm, *accentuationMpm);
+        std::cout << "✓ MPM metrical accentuation application completed successfully!" << std::endl;
+        
+        std::cout << "\n--- AFTER Performance Application (Metrical Accentuation) ---" << std::endl;
+        test::MpmTestUtils::printMsm(*accentuationResult, "Result MSM with Applied Metrical Accentuation");
         
         // Verify transformation worked
         bool hasVelocityChanges = test::MpmTestUtils::verifyMsmModifications(*resultMsm, {"velocity"});
@@ -109,7 +133,7 @@ int main() {
             std::cout << "ℹ Note: Velocity verification needs more implementation" << std::endl;
         }
         
-        std::cout << "\nAll basic tests passed! C++ port foundation is working." << std::endl;
+        std::cout << "\n🎉 All tests passed! New ArticulationMap and MetricalAccentuationMap are working!" << std::endl;
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

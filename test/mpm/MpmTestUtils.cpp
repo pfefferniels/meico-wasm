@@ -4,6 +4,8 @@
 #include "mpm/elements/Part.h"
 #include "mpm/elements/Dated.h"
 #include "mpm/elements/maps/DynamicsMap.h"
+#include "mpm/elements/maps/ArticulationMap.h"
+#include "mpm/elements/maps/MetricalAccentuationMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -139,6 +141,49 @@ void MpmTestUtils::addNoteToScore(Element scoreMap, double date, const std::stri
     note.append_attribute("midi.pitch") = std::to_string(pitch).c_str();
     note.append_attribute("duration") = std::to_string(duration).c_str();
     note.append_attribute("velocity") = std::to_string(velocity).c_str();
+}
+
+std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithArticulationMap() {
+    auto mpm = createBasicMpm();
+    
+    if (mpm->size() > 0) {
+        auto* performance = mpm->getPerformance(0);
+        if (performance && performance->getGlobal()) {
+            // Create articulation map with some test data
+            auto articulationMap = mpm::ArticulationMap::createArticulationMap();
+            
+            // Add a staccato articulation at date 0
+            articulationMap->addArticulation(0.0, 0.0, 0.5, 0.0, 1.2, "", "staccato_1");
+            
+            // Add a legato articulation at date 1440 (quarter note later)
+            articulationMap->addArticulation(1440.0, 0.0, 1.2, 0.0, 0.9, "", "legato_1");
+            
+            // Add the map to the performance
+            performance->getGlobal()->getDated()->addMap(std::move(articulationMap));
+        }
+    }
+    
+    return mpm;
+}
+
+std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMetricalAccentuationMap() {
+    auto mpm = createBasicMpm();
+    
+    if (mpm->size() > 0) {
+        auto* performance = mpm->getPerformance(0);
+        if (performance && performance->getGlobal()) {
+            // Create metrical accentuation map with some test data
+            auto accentuationMap = mpm::MetricalAccentuationMap::createMetricalAccentuationMap();
+            
+            // Add an accentuation pattern starting at date 0
+            accentuationMap->addAccentuationPattern(0.0, "basicPattern", 10.0, true, true);
+            
+            // Add the map to the performance
+            performance->getGlobal()->getDated()->addMap(std::move(accentuationMap));
+        }
+    }
+    
+    return mpm;
 }
 
 } // namespace test
