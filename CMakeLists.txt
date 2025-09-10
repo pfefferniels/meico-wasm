@@ -37,7 +37,11 @@ set(SOURCES
     src/mpm/elements/maps/RubatoMap.cpp
     src/mpm/elements/maps/OrnamentationMap.cpp
     src/mpm/elements/maps/MovementMap.cpp
+    src/mpm/elements/maps/AsynchronyMap.cpp
+    src/mpm/elements/maps/ImprecisionMap.cpp
+    src/mpm/elements/maps/data/DistributionData.cpp
     src/supplementary/KeyValue.cpp
+    src/supplementary/RandomNumberProvider.cpp
 )
 
 # Header files
@@ -67,8 +71,12 @@ set(HEADERS
     include/mpm/elements/maps/RubatoMap.h
     include/mpm/elements/maps/OrnamentationMap.h
     include/mpm/elements/maps/MovementMap.h
+    include/mpm/elements/maps/AsynchronyMap.h
+    include/mpm/elements/maps/ImprecisionMap.h
+    include/mpm/elements/maps/data/DistributionData.h
     include/mpm/elements/metadata/Metadata.h
     include/supplementary/KeyValue.h
+    include/supplementary/RandomNumberProvider.h
     include/common/common.h
 )
 
