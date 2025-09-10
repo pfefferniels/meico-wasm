@@ -13,74 +13,74 @@ const std::string DistributionData::BROWNIAN = "distribution.correlated.brownian
 const std::string DistributionData::COMPENSATING_TRIANGLE = "distribution.correlated.compensatingTriangle";
 const std::string DistributionData::LIST = "distribution.list";
 
-DistributionData::DistributionData() : xml(xml::XmlBase::createElement("temp")) {}
+DistributionData::DistributionData() : xml(xml::Helper::createElement("temp")) {}
 
 DistributionData::DistributionData(const Element& xml) : xml(xml) {
     this->type = xml.name();
 
-    std::string dateStr = xml::Helper::getAttributeValue("date", xml);
+    std::string dateStr = xml::Helper::getAttributeValue(xml, "date");
     if (!dateStr.empty())
         this->startDate = std::stod(dateStr);
 
-    std::string xmlIdValue = xml::Helper::getAttributeValue("xml:id", xml);
+    std::string xmlIdValue = xml::Helper::getAttributeValue(xml, "xml:id");
     if (!xmlIdValue.empty())
         this->xmlId = xmlIdValue;
 
-    std::string seedStr = xml::Helper::getAttributeValue("seed", xml);
+    std::string seedStr = xml::Helper::getAttributeValue(xml, "seed");
     if (!seedStr.empty()) {
         this->seed = std::stol(seedStr);
         this->hasSeed = true;
     }
 
-    std::string lowerLimitStr = xml::Helper::getAttributeValue("limit.lower", xml);
+    std::string lowerLimitStr = xml::Helper::getAttributeValue(xml, "limit.lower");
     if (!lowerLimitStr.empty()) {
         this->lowerLimit = std::stod(lowerLimitStr);
         this->hasLowerLimit = true;
     }
 
-    std::string upperLimitStr = xml::Helper::getAttributeValue("limit.upper", xml);
+    std::string upperLimitStr = xml::Helper::getAttributeValue(xml, "limit.upper");
     if (!upperLimitStr.empty()) {
         this->upperLimit = std::stod(upperLimitStr);
         this->hasUpperLimit = true;
     }
 
-    std::string lowerClipStr = xml::Helper::getAttributeValue("clip.lower", xml);
+    std::string lowerClipStr = xml::Helper::getAttributeValue(xml, "clip.lower");
     if (!lowerClipStr.empty()) {
         this->lowerClip = std::stod(lowerClipStr);
         this->hasLowerClip = true;
     }
 
-    std::string upperClipStr = xml::Helper::getAttributeValue("clip.upper", xml);
+    std::string upperClipStr = xml::Helper::getAttributeValue(xml, "clip.upper");
     if (!upperClipStr.empty()) {
         this->upperClip = std::stod(upperClipStr);
         this->hasUpperClip = true;
     }
 
-    std::string modeStr = xml::Helper::getAttributeValue("mode", xml);
+    std::string modeStr = xml::Helper::getAttributeValue(xml, "mode");
     if (!modeStr.empty()) {
         this->mode = std::stod(modeStr);
         this->hasMode = true;
     }
 
-    std::string standardDeviationStr = xml::Helper::getAttributeValue("deviation.standard", xml);
+    std::string standardDeviationStr = xml::Helper::getAttributeValue(xml, "deviation.standard");
     if (!standardDeviationStr.empty()) {
         this->standardDeviation = std::stod(standardDeviationStr);
         this->hasStandardDeviation = true;
     }
 
-    std::string millisecondsTimingBasisStr = xml::Helper::getAttributeValue("milliseconds.timingBasis", xml);
+    std::string millisecondsTimingBasisStr = xml::Helper::getAttributeValue(xml, "milliseconds.timingBasis");
     if (!millisecondsTimingBasisStr.empty()) {
         this->millisecondsTimingBasis = std::stod(millisecondsTimingBasisStr);
         this->hasMillisecondsTimingBasis = true;
     }
 
-    std::string degreeOfCorrelationStr = xml::Helper::getAttributeValue("degreeOfCorrelation", xml);
+    std::string degreeOfCorrelationStr = xml::Helper::getAttributeValue(xml, "degreeOfCorrelation");
     if (!degreeOfCorrelationStr.empty()) {
         this->degreeOfCorrelation = std::stod(degreeOfCorrelationStr);
         this->hasDegreeOfCorrelation = true;
     }
 
-    std::string maxStepWidthStr = xml::Helper::getAttributeValue("stepWidth.max", xml);
+    std::string maxStepWidthStr = xml::Helper::getAttributeValue(xml, "stepWidth.max");
     if (!maxStepWidthStr.empty()) {
         this->maxStepWidth = std::stod(maxStepWidthStr);
         this->hasMaxStepWidth = true;
@@ -89,7 +89,7 @@ DistributionData::DistributionData(const Element& xml) : xml(xml) {
     // Parse measurement children
     for (auto child = xml.first_child(); child; child = child.next_sibling()) {
         if (std::string(child.name()) == "measurement") {
-            std::string valueStr = xml::Helper::getAttributeValue("value", child);
+            std::string valueStr = xml::Helper::getAttributeValue(child, "value");
             if (!valueStr.empty()) {
                 this->distributionList.push_back(std::stod(valueStr));
             }
