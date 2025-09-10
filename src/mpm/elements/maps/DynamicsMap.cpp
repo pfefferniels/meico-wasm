@@ -102,27 +102,42 @@ bool DynamicsMap::applyToMsmPart(Element msmPart) {
     
     bool modified = false;
     
-    // Find all note elements in the part
-    auto scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
+    // Find all note elements in the part - try both direct dated and header/dated paths
+    Element scoreElement;
+    
+    // First try: part -> dated -> score (for some MSM structures)
+    scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
     if (scoreElement) {
         scoreElement = xml::Helper::getFirstChildElement(scoreElement, "score");
-        if (scoreElement) {
-            // Process all notes
-            for (auto note : scoreElement.children("note")) {
-                auto dateAttr = note.attribute("date");
-                if (dateAttr) {
-                    double noteDate = xml::Helper::parseDouble(dateAttr.value());
-                    double newVelocity = getDynamicsAt(noteDate);
-                    
-                    // Update or add velocity attribute
-                    auto velocityAttr = note.attribute("velocity");
-                    if (velocityAttr) {
-                        velocityAttr.set_value(std::to_string(newVelocity).c_str());
-                    } else {
-                        note.append_attribute("velocity") = std::to_string(newVelocity).c_str();
-                    }
-                    modified = true;
+    }
+    
+    // If not found, try: part -> header -> dated -> score (for Bach MSM structure)
+    if (!scoreElement) {
+        auto headerElement = xml::Helper::getFirstChildElement(msmPart, "header");
+        if (headerElement) {
+            auto datedElement = xml::Helper::getFirstChildElement(headerElement, "dated");
+            if (datedElement) {
+                scoreElement = xml::Helper::getFirstChildElement(datedElement, "score");
+            }
+        }
+    }
+    
+    if (scoreElement) {
+        // Process all notes
+        for (auto note : scoreElement.children("note")) {
+            auto dateAttr = note.attribute("date");
+            if (dateAttr) {
+                double noteDate = xml::Helper::parseDouble(dateAttr.value());
+                double newVelocity = getDynamicsAt(noteDate);
+                
+                // Update or add velocity attribute
+                auto velocityAttr = note.attribute("velocity");
+                if (velocityAttr) {
+                    velocityAttr.set_value(std::to_string(newVelocity).c_str());
+                } else {
+                    note.append_attribute("velocity") = std::to_string(newVelocity).c_str();
                 }
+                modified = true;
             }
         }
     }

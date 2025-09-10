@@ -201,38 +201,53 @@ bool ArticulationMap::applyToMsmPart(Element msmPart) {
     
     bool modified = false;
     
-    // Find all note elements in the part
-    auto scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
+    // Find all note elements in the part - try both direct dated and header/dated paths
+    Element scoreElement;
+    
+    // First try: part -> dated -> score (for some MSM structures)
+    scoreElement = xml::Helper::getFirstChildElement(msmPart, "dated");
     if (scoreElement) {
         scoreElement = xml::Helper::getFirstChildElement(scoreElement, "score");
-        if (scoreElement) {
-            // Process all notes
-            for (auto note : scoreElement.children("note")) {
-                auto dateAttr = note.attribute("date");
+    }
+    
+    // If not found, try: part -> header -> dated -> score (for Bach MSM structure)
+    if (!scoreElement) {
+        auto headerElement = xml::Helper::getFirstChildElement(msmPart, "header");
+        if (headerElement) {
+            auto datedElement = xml::Helper::getFirstChildElement(headerElement, "dated");
+            if (datedElement) {
+                scoreElement = xml::Helper::getFirstChildElement(datedElement, "score");
+            }
+        }
+    }
+    
+    if (scoreElement) {
+        // Process all notes
+        for (auto note : scoreElement.children("note")) {
+            auto dateAttr = note.attribute("date");
+            
+            if (dateAttr) {
+                double noteDate = xml::Helper::parseDouble(dateAttr.value());
                 
-                if (dateAttr) {
-                    double noteDate = xml::Helper::parseDouble(dateAttr.value());
-                    
-                    // Check for specific articulations for this note
-                    auto noteIdAttr = note.attribute("xml:id");
-                    std::string noteId = noteIdAttr ? noteIdAttr.value() : "";
-                    
-                    // Find articulations that apply to this note
-                    bool noteModified = false;
-                    for (const auto& data : articulationData) {
-                        if (std::abs(data.date - noteDate) < 0.001) { // Same date
-                            // Check if this articulation applies to this specific note or all notes
-                            if (data.noteid.empty() || data.noteid == noteId) {
-                                if (applyArticulationToNote(note, data)) {
-                                    noteModified = true;
-                                }
+                // Check for specific articulations for this note
+                auto noteIdAttr = note.attribute("xml:id");
+                std::string noteId = noteIdAttr ? noteIdAttr.value() : "";
+                
+                // Find articulations that apply to this note
+                bool noteModified = false;
+                for (const auto& data : articulationData) {
+                    if (std::abs(data.date - noteDate) < 0.001) { // Same date
+                        // Check if this articulation applies to this specific note or all notes
+                        if (data.noteid.empty() || data.noteid == noteId) {
+                            if (applyArticulationToNote(note, data)) {
+                                noteModified = true;
                             }
                         }
                     }
-                    
-                    if (noteModified) {
-                        modified = true;
-                    }
+                }
+                
+                if (noteModified) {
+                    modified = true;
                 }
             }
         }
