@@ -1,7 +1,9 @@
 #include "mpm/elements/maps/ArticulationMap.h"
+#include "mpm/elements/maps/data/ArticulationData.h"
 #include "mpm/Mpm.h"
 #include "xml/Helper.h"
 #include <algorithm>
+#include <map>
 
 namespace meico {
 namespace mpm {
@@ -13,8 +15,8 @@ std::unique_ptr<ArticulationMap> ArticulationMap::createArticulationMap() {
     return std::make_unique<ArticulationMap>();
 }
 
-void ArticulationMap::addArticulation(double date, const std::string& articulationDefName, 
-                                    const std::string& noteid, const std::string& id) {
+int ArticulationMap::addArticulation(double date, const std::string& articulationDefName, 
+                                   const std::string& noteid, const std::string& id) {
     ArticulationData data;
     data.date = date;
     data.articulationDefName = articulationDefName;
@@ -26,17 +28,39 @@ void ArticulationMap::addArticulation(double date, const std::string& articulati
     // Keep data sorted by date for efficient lookup
     std::sort(articulationData.begin(), articulationData.end(), 
               [](const auto& a, const auto& b) { return a.date < b.date; });
+    
+    return static_cast<int>(articulationData.size() - 1);
 }
 
-void ArticulationMap::addArticulation(double date, double absoluteDuration, double relativeDuration,
-                                    double absoluteVelocity, double relativeVelocity,
-                                    const std::string& noteid, const std::string& id) {
+int ArticulationMap::addArticulation(double date, 
+                                   std::shared_ptr<double> absoluteDuration,
+                                   double absoluteDurationChange,
+                                   double relativeDuration,
+                                   std::shared_ptr<double> absoluteDurationMs,
+                                   double absoluteDurationChangeMs,
+                                   double absoluteVelocityChange,
+                                   std::shared_ptr<double> absoluteVelocity,
+                                   double relativeVelocity,
+                                   double absoluteDelayMs,
+                                   double absoluteDelay,
+                                   double detuneCents,
+                                   double detuneHz,
+                                   const std::string& noteid,
+                                   const std::string& id) {
     ArticulationData data;
     data.date = date;
     data.absoluteDuration = absoluteDuration;
+    data.absoluteDurationChange = absoluteDurationChange;
     data.relativeDuration = relativeDuration;
+    data.absoluteDurationMs = absoluteDurationMs;
+    data.absoluteDurationChangeMs = absoluteDurationChangeMs;
+    data.absoluteVelocityChange = absoluteVelocityChange;
     data.absoluteVelocity = absoluteVelocity;
     data.relativeVelocity = relativeVelocity;
+    data.absoluteDelayMs = absoluteDelayMs;
+    data.absoluteDelay = absoluteDelay;
+    data.detuneCents = detuneCents;
+    data.detuneHz = detuneHz;
     data.noteid = noteid;
     data.xmlId = id;
     
@@ -45,18 +69,22 @@ void ArticulationMap::addArticulation(double date, double absoluteDuration, doub
     // Keep data sorted by date for efficient lookup
     std::sort(articulationData.begin(), articulationData.end(), 
               [](const auto& a, const auto& b) { return a.date < b.date; });
+    
+    return static_cast<int>(articulationData.size() - 1);
 }
 
-void ArticulationMap::addArticulation(const ArticulationData& data) {
+int ArticulationMap::addArticulation(const ArticulationData& data) {
     articulationData.push_back(data);
     
     // Keep data sorted by date for efficient lookup
     std::sort(articulationData.begin(), articulationData.end(), 
               [](const auto& a, const auto& b) { return a.date < b.date; });
+    
+    return static_cast<int>(articulationData.size() - 1);
 }
 
-void ArticulationMap::addStyleSwitch(double date, const std::string& styleName, 
-                                   const std::string& defaultArticulation, const std::string& id) {
+int ArticulationMap::addStyleSwitch(double date, const std::string& styleName, 
+                                  const std::string& defaultArticulation, const std::string& id) {
     ArticulationData data;
     data.date = date;
     data.styleName = styleName;
@@ -68,21 +96,102 @@ void ArticulationMap::addStyleSwitch(double date, const std::string& styleName,
     // Keep data sorted by date for efficient lookup
     std::sort(articulationData.begin(), articulationData.end(), 
               [](const auto& a, const auto& b) { return a.date < b.date; });
+    
+    return static_cast<int>(articulationData.size() - 1);
 }
 
-std::vector<ArticulationData> ArticulationMap::getArticulationDataAt(double date) const {
-    std::vector<ArticulationData> result;
+std::shared_ptr<ArticulationData> ArticulationMap::getArticulationDataOf(int index) {
+    if (articulationData.empty() || index < 0 || index >= static_cast<int>(articulationData.size())) {
+        return nullptr;
+    }
     
-    // Find all articulations that apply exactly at this date
-    for (const auto& data : articulationData) {
-        if (std::abs(data.date - date) < 0.001) { // Allow small floating point tolerance
-            if (!data.articulationDefName.empty() || data.absoluteVelocity > 0 || data.relativeVelocity != 1.0) {
-                result.push_back(data);
+    // Return a copy as shared_ptr
+    return std::make_shared<ArticulationData>(articulationData[index]);
+}
+
+std::vector<ArticulationData> ArticulationMap::getArticulationDataAt(double date) {
+    std::vector<ArticulationData> ads;
+    
+    // Find all articulations exactly at this date
+    for (int i = static_cast<int>(articulationData.size()) - 1; i >= 0; --i) {
+        if (std::abs(articulationData[i].date - date) < 0.001) { // Allow small floating point tolerance
+            if (!articulationData[i].articulationDefName.empty() ||
+                articulationData[i].absoluteVelocity ||
+                articulationData[i].relativeVelocity != 1.0 ||
+                articulationData[i].absoluteVelocityChange != 0.0) {
+                ads.insert(ads.begin(), articulationData[i]); // Add at front since we're going backwards
             }
+        } else if (articulationData[i].date < date) {
+            break; // Stop if we've gone past the date
         }
     }
     
-    return result;
+    // If no articulation is defined for this particular date, provide style and standard articulation data
+    if (ads.empty()) {
+        ArticulationData ad;
+        ad.date = date;
+        // TODO: Find appropriate style when style system is implemented
+        // findStyle(index, ad);
+        ads.push_back(ad);
+    }
+    
+    return ads;
+}
+
+void ArticulationMap::findStyle(int index, ArticulationData& ad) {
+    // Get the style that applies to this articulation
+    for (int j = index; j >= 0; --j) {
+        if (!articulationData[j].styleName.empty()) {
+            ad.styleName = articulationData[j].styleName;
+            // TODO: Load the actual style when style system is implemented
+            // ad.style = getStyle(Mpm::ARTICULATION_STYLE, ad.styleName);
+            
+            if (!articulationData[j].defaultArticulation.empty()) {
+                ad.defaultArticulation = articulationData[j].defaultArticulation;
+                // TODO: Load the actual default articulation def when style system is implemented
+                // if (ad.style) ad.defaultArticulationDef = ad.style->getDef(ad.defaultArticulation);
+            }
+            return;
+        }
+    }
+    ad.styleName = "";
+}
+
+void ArticulationMap::renderArticulationToMap_noMillisecondModifiers(GenericMap& map) {
+    // Make a map using element address as key for notes with specific articulation
+    std::map<void*, std::vector<ArticulationData>> noteArtics;
+    bool mapTimingChanged = false;
+    
+    for (size_t articIndex = 0; articIndex < articulationData.size(); ++articIndex) {
+        const ArticulationData& ad = articulationData[articIndex];
+        
+        // Check if this is an actual articulation (not a style switch)
+        if (ad.articulationDefName.empty() && !ad.absoluteVelocity && 
+            ad.relativeVelocity == 1.0 && ad.absoluteVelocityChange == 0.0) {
+            continue; // Skip style switches
+        }
+        
+        if (!ad.noteid.empty()) {
+            // This articulation is for a specific note
+            // TODO: Find the corresponding note by ID when note lookup is implemented
+            // For now, apply to all notes at the same date
+        }
+        
+        // Apply to all map elements at the same date (simplified implementation)
+        // TODO: Implement proper note targeting and style resolution
+    }
+    
+    // TODO: Apply default articulation styles
+    
+    // Correct map order due to timing changes
+    if (mapTimingChanged) {
+        // TODO: Implement map sorting when GenericMap supports it
+    }
+}
+
+void ArticulationMap::renderArticulationToMap_millisecondModifiers(GenericMap& map) {
+    // TODO: Implement millisecond modifier application
+    // This handles attributes like articulation.absoluteDelayMs, etc.
 }
 
 bool ArticulationMap::applyToMsmPart(Element msmPart) {
@@ -138,66 +247,8 @@ void ArticulationMap::parseData(const Element& xmlElement) {
     // Parse articulation entries from XML
     for (auto child : xmlElement.children()) {
         if (std::string(child.name()) == "articulation") {
-            ArticulationData data;
-            
-            auto dateAttr = child.attribute("date");
-            auto xmlIdAttr = child.attribute("xml:id");
-            auto noteidAttr = child.attribute("noteid");
-            auto nameRefAttr = child.attribute("name.ref");
-            
-            if (dateAttr) {
-                data.date = xml::Helper::parseDouble(dateAttr.value());
-            }
-            if (xmlIdAttr) {
-                data.xmlId = xmlIdAttr.value();
-            }
-            if (noteidAttr) {
-                data.noteid = noteidAttr.value();
-            }
-            if (nameRefAttr) {
-                data.articulationDefName = nameRefAttr.value();
-            }
-            
-            // Parse articulation parameters
-            auto attr = child.attribute("absoluteDuration");
-            if (attr) data.absoluteDuration = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteDurationChange");
-            if (attr) data.absoluteDurationChange = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("relativeDuration");
-            if (attr) data.relativeDuration = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteDurationMs");
-            if (attr) data.absoluteDurationMs = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteDurationChangeMs");
-            if (attr) data.absoluteDurationChangeMs = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteVelocityChange");
-            if (attr) data.absoluteVelocityChange = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteVelocity");
-            if (attr) data.absoluteVelocity = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("relativeVelocity");
-            if (attr) data.relativeVelocity = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteDelayMs");
-            if (attr) data.absoluteDelayMs = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("absoluteDelay");
-            if (attr) data.absoluteDelay = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("detuneCents");
-            if (attr) data.detuneCents = xml::Helper::parseDouble(attr.value());
-            
-            attr = child.attribute("detuneHz");
-            if (attr) data.detuneHz = xml::Helper::parseDouble(attr.value());
-            
-            data.xml = child;
+            ArticulationData data(child);
             articulationData.push_back(data);
-            
         } else if (std::string(child.name()) == "style") {
             ArticulationData data;
             
@@ -229,16 +280,16 @@ void ArticulationMap::parseData(const Element& xmlElement) {
               [](const auto& a, const auto& b) { return a.date < b.date; });
 }
 
-bool ArticulationMap::applyArticulationToNote(Element note, const ArticulationData& data) const {
+bool ArticulationMap::applyArticulationToNote(Element& note, const ArticulationData& data) const {
     bool modified = false;
     
     // Apply velocity changes
-    if (data.absoluteVelocity > 0) {
+    if (data.absoluteVelocity) {
         auto velocityAttr = note.attribute("velocity");
         if (velocityAttr) {
-            velocityAttr.set_value(std::to_string(data.absoluteVelocity).c_str());
+            velocityAttr.set_value(std::to_string(*data.absoluteVelocity).c_str());
         } else {
-            note.append_attribute("velocity") = std::to_string(data.absoluteVelocity).c_str();
+            note.append_attribute("velocity") = std::to_string(*data.absoluteVelocity).c_str();
         }
         modified = true;
     } else if (data.relativeVelocity != 1.0) {
@@ -262,12 +313,12 @@ bool ArticulationMap::applyArticulationToNote(Element note, const ArticulationDa
     }
     
     // Apply duration changes
-    if (data.absoluteDuration > 0) {
+    if (data.absoluteDuration) {
         auto durationAttr = note.attribute("duration");
         if (durationAttr) {
-            durationAttr.set_value(std::to_string(data.absoluteDuration).c_str());
+            durationAttr.set_value(std::to_string(*data.absoluteDuration).c_str());
         } else {
-            note.append_attribute("duration") = std::to_string(data.absoluteDuration).c_str();
+            note.append_attribute("duration") = std::to_string(*data.absoluteDuration).c_str();
         }
         modified = true;
     } else if (data.relativeDuration != 1.0) {
@@ -287,6 +338,27 @@ bool ArticulationMap::applyArticulationToNote(Element note, const ArticulationDa
             durationAttr.set_value(std::to_string(newDuration).c_str());
             modified = true;
         }
+    }
+    
+    // Apply timing changes
+    if (data.absoluteDelay != 0.0) {
+        auto dateAttr = note.attribute("date");
+        if (dateAttr) {
+            double currentDate = xml::Helper::parseDouble(dateAttr.value());
+            double newDate = currentDate + data.absoluteDelay;
+            dateAttr.set_value(std::to_string(newDate).c_str());
+            modified = true;
+        }
+    }
+    
+    // Apply detuning
+    if (data.detuneCents != 0.0) {
+        note.append_attribute("detuneCents") = std::to_string(data.detuneCents).c_str();
+        modified = true;
+    }
+    if (data.detuneHz != 0.0) {
+        note.append_attribute("detuneHz") = std::to_string(data.detuneHz).c_str();
+        modified = true;
     }
     
     return modified;

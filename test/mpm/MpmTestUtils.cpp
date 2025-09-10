@@ -154,11 +154,21 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithArticulationMap() {
             // Create articulation map with some test data
             auto articulationMap = mpm::ArticulationMap::createArticulationMap();
             
-            // Add a staccato articulation at date 0
-            articulationMap->addArticulation(0.0, 0.0, 0.5, 0.0, 1.2, "", "staccato_1");
+            // Add a staccato articulation at date 0 (duration×0.5, velocity×1.2)
+            mpm::ArticulationData staccatoData;
+            staccatoData.date = 0.0;
+            staccatoData.relativeDuration = 0.5;
+            staccatoData.relativeVelocity = 1.2;
+            staccatoData.xmlId = "staccato_1";
+            articulationMap->addArticulation(staccatoData);
             
-            // Add a legato articulation at date 1440 (quarter note later)
-            articulationMap->addArticulation(1440.0, 0.0, 1.2, 0.0, 0.9, "", "legato_1");
+            // Add a legato articulation at date 1440 (duration×1.2, velocity×0.9)
+            mpm::ArticulationData legatoData;
+            legatoData.date = 1440.0;
+            legatoData.relativeDuration = 1.2;
+            legatoData.relativeVelocity = 0.9;
+            legatoData.xmlId = "legato_1";
+            articulationMap->addArticulation(legatoData);
             
             // Add the map to the performance
             performance->getGlobal()->getDated()->addMap(std::move(articulationMap));

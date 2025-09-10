@@ -1,49 +1,23 @@
 #pragma once
 
 #include "mpm/elements/maps/GenericMap.h"
+#include "mpm/elements/maps/data/ArticulationData.h"
 #include "supplementary/KeyValue.h"
 #include <vector>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace meico {
 namespace mpm {
 
-/**
- * Struct to hold articulation data
- */
-struct ArticulationData {
-    double date = 0.0;
-    std::string xmlId;
-    std::string noteid;
-    std::string articulationDefName;
-    
-    // Articulation parameters
-    double absoluteDuration = 0.0;
-    double absoluteDurationChange = 0.0;
-    double relativeDuration = 1.0;
-    double absoluteDurationMs = 0.0;
-    double absoluteDurationChangeMs = 0.0;
-    double absoluteVelocityChange = 0.0;
-    double absoluteVelocity = 0.0;
-    double relativeVelocity = 1.0;
-    double absoluteDelayMs = 0.0;
-    double absoluteDelay = 0.0;
-    double detuneCents = 0.0;
-    double detuneHz = 0.0;
-    
-    // Style information
-    std::string styleName;
-    std::string defaultArticulation;
-    
-    Element xml;
-    
-    ArticulationData() = default;
-};
+// Forward declarations
+class ArticulationStyle;
+class ArticulationDef;
 
 /**
- * This class represents an articulation map in MPM.
- * Handles performance articulations like staccato, legato, etc.
+ * This class interfaces MPM's articulationMaps.
+ * Ported from the original Java ArticulationMap implementation.
  */
 class ArticulationMap : public GenericMap {
 private:
@@ -67,51 +41,89 @@ public:
     static std::unique_ptr<ArticulationMap> createArticulationMap();
 
     /**
-     * Add an articulation entry by reference to an articulation definition
-     * @param date the musical time (in PPQ units)
-     * @param articulationDefName reference to an articulation definition
-     * @param noteid optional note ID this articulation applies to
-     * @param id optional XML ID for this articulation
+     * Add an articulation element to the map
+     * @param date musical time (in PPQ units)
+     * @param articulationDefName reference to an articulationDef
+     * @param noteid optional xml:id reference to the note (should start with #)
+     * @param id optional XML ID for this entry
+     * @return the index at which it has been inserted
      */
-    void addArticulation(double date, const std::string& articulationDefName, 
-                        const std::string& noteid = "", const std::string& id = "");
+    int addArticulation(double date, const std::string& articulationDefName, 
+                       const std::string& noteid = "", const std::string& id = "");
 
     /**
-     * Add an articulation entry with explicit parameters
-     * @param date the musical time
-     * @param absoluteDuration absolute duration value
-     * @param relativeDuration relative duration multiplier
-     * @param absoluteVelocity absolute velocity value
-     * @param relativeVelocity relative velocity multiplier
-     * @param noteid optional note ID this articulation applies to
-     * @param id optional XML ID for this articulation
-     */
-    void addArticulation(double date, double absoluteDuration, double relativeDuration,
-                        double absoluteVelocity, double relativeVelocity,
-                        const std::string& noteid = "", const std::string& id = "");
-
-    /**
-     * Add an articulation entry from ArticulationData struct
-     * @param data the articulation data to add
-     */
-    void addArticulation(const ArticulationData& data);
-
-    /**
-     * Add a style switch
-     * @param date the musical time
-     * @param styleName reference to a style definition
-     * @param defaultArticulation default articulation for this style
+     * Add an articulation element to the map with all possible attributes
+     * @param date musical time
+     * @param absoluteDuration numeric value or nullptr
+     * @param absoluteDurationChange numeric value
+     * @param relativeDuration numeric value
+     * @param absoluteDurationMs numeric value or nullptr
+     * @param absoluteDurationChangeMs numeric value
+     * @param absoluteVelocityChange numeric value
+     * @param absoluteVelocity numeric value or nullptr
+     * @param relativeVelocity numeric value
+     * @param absoluteDelayMs numeric value
+     * @param absoluteDelay numeric value
+     * @param detuneCents numeric value
+     * @param detuneHz numeric value
+     * @param noteid optional xml:id reference to the note
      * @param id optional XML ID
+     * @return the index at which it has been inserted
      */
-    void addStyleSwitch(double date, const std::string& styleName, 
-                       const std::string& defaultArticulation = "", const std::string& id = "");
+    int addArticulation(double date, 
+                       std::shared_ptr<double> absoluteDuration, 
+                       double absoluteDurationChange, 
+                       double relativeDuration,
+                       std::shared_ptr<double> absoluteDurationMs, 
+                       double absoluteDurationChangeMs,
+                       double absoluteVelocityChange, 
+                       std::shared_ptr<double> absoluteVelocity, 
+                       double relativeVelocity,
+                       double absoluteDelayMs, 
+                       double absoluteDelay, 
+                       double detuneCents, 
+                       double detuneHz,
+                       const std::string& noteid = "", 
+                       const std::string& id = "");
 
     /**
-     * Get articulation data at a specific time
-     * @param date the musical time
-     * @return vector of articulation data that applies at this time
+     * Add an articulation element from ArticulationData object
+     * @param data the articulation data to add
+     * @return the index at which it has been inserted
      */
-    std::vector<ArticulationData> getArticulationDataAt(double date) const;
+    int addArticulation(const ArticulationData& data);
+
+    /**
+     * Add a style switch (an MPM style element)
+     * @param date musical time
+     * @param styleName reference to a styleDef
+     * @param defaultArticulation reference to an articulationDef
+     * @param id optional XML ID
+     * @return the index at which it has been inserted
+     */
+    int addStyleSwitch(double date, const std::string& styleName, 
+                      const std::string& defaultArticulation = "", const std::string& id = "");
+
+    /**
+     * Get articulation data of a specified element in this map
+     * @param index element index
+     * @return articulation data or nullptr if invalid
+     */
+    std::shared_ptr<ArticulationData> getArticulationDataOf(int index);
+
+    /**
+     * Render articulation to map (no millisecond modifiers stage)
+     * This method is meant to be applied BEFORE other timing transformations and AFTER dynamics rendering
+     * @param map the map to modify
+     */
+    void renderArticulationToMap_noMillisecondModifiers(GenericMap& map);
+
+    /**
+     * Render articulation to map (millisecond modifiers stage)
+     * This method is meant to be applied AFTER asynchrony has been added and BEFORE imprecision
+     * @param map the map to modify
+     */
+    void renderArticulationToMap_millisecondModifiers(GenericMap& map);
 
     /**
      * Apply this articulation map to modify notes in an MSM part
@@ -119,6 +131,12 @@ public:
      * @return true if any modifications were made
      */
     bool applyToMsmPart(Element msmPart) override;
+
+    /**
+     * Get the number of elements in this map
+     * @return number of elements
+     */
+    size_t size() const { return articulationData.size(); }
 
 protected:
     /**
@@ -129,12 +147,26 @@ protected:
 
 private:
     /**
+     * Collect all data needed to compute articulation at the specified date
+     * @param date musical time
+     * @return vector of all articulations at the specific date
+     */
+    std::vector<ArticulationData> getArticulationDataAt(double date);
+
+    /**
+     * Get the style that applies to the articulation at the specified index
+     * @param index the index for which style data is needed
+     * @param ad articulation data object to store style information
+     */
+    void findStyle(int index, ArticulationData& ad);
+
+    /**
      * Apply articulation data to a note element
      * @param note the note element to modify
      * @param data the articulation data to apply
      * @return true if the note was modified
      */
-    bool applyArticulationToNote(Element note, const ArticulationData& data) const;
+    bool applyArticulationToNote(Element& note, const ArticulationData& data) const;
 
     /**
      * Get the current style that applies at the given index
