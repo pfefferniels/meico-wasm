@@ -18,6 +18,12 @@ set(SOURCES
     src/msm/AbstractMsm.cpp
     src/msm/Msm.cpp
     src/mpm/Mpm.cpp
+    src/mpm/elements/Performance.cpp
+    src/mpm/elements/Global.cpp
+    src/mpm/elements/Part.cpp
+    src/mpm/elements/Dated.cpp
+    src/mpm/elements/maps/GenericMap.cpp
+    src/mpm/elements/maps/DynamicsMap.cpp
     src/supplementary/KeyValue.cpp
 )
 
@@ -29,6 +35,13 @@ set(HEADERS
     include/msm/AbstractMsm.h
     include/msm/Msm.h
     include/mpm/Mpm.h
+    include/mpm/elements/Performance.h
+    include/mpm/elements/Global.h
+    include/mpm/elements/Part.h
+    include/mpm/elements/Dated.h
+    include/mpm/elements/maps/GenericMap.h
+    include/mpm/elements/maps/DynamicsMap.h
+    include/mpm/elements/metadata/Metadata.h
     include/supplementary/KeyValue.h
     include/common/common.h
 )

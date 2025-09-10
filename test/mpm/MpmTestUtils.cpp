@@ -1,5 +1,9 @@
 #include "mpm/MpmTestUtils.h"
 #include "mpm/elements/Performance.h"
+#include "mpm/elements/Global.h"
+#include "mpm/elements/Part.h"
+#include "mpm/elements/Dated.h"
+#include "mpm/elements/maps/DynamicsMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 #include <iostream>
@@ -75,8 +79,9 @@ std::unique_ptr<msm::Msm> MpmTestUtils::createMultiPartMsm() {
 std::unique_ptr<mpm::Mpm> MpmTestUtils::createBasicMpm() {
     auto mpm = mpm::Mpm::createMpm();
     
-    // Add a performance (simplified - would need Performance class implementation)
-    // For now, just return the basic MPM
+    // Add a performance
+    auto performance = mpm::Performance::createPerformance("Test Performance");
+    mpm->addPerformance(std::move(performance));
     
     return mpm;
 }
@@ -84,8 +89,17 @@ std::unique_ptr<mpm::Mpm> MpmTestUtils::createBasicMpm() {
 std::unique_ptr<mpm::Mpm> MpmTestUtils::createMpmWithMap(const std::string& mapType) {
     auto mpm = createBasicMpm();
     
-    // TODO: Add specific map type implementation
-    // This would require implementing the various map classes
+    if (mpm->size() > 0) {
+        auto performance = mpm->getPerformance(0);
+        if (performance && mapType == mpm::Mpm::DYNAMICS_MAP) {
+            // Create a dynamics map with some test data
+            auto dynamicsMap = mpm::DynamicsMap::createDynamicsMap();
+            dynamicsMap->addDynamics(0.0, 60.0);    // piano at start
+            dynamicsMap->addDynamics(1440.0, 110.0); // forte later
+            
+            performance->getGlobal()->getDated()->addMap(std::move(dynamicsMap));
+        }
+    }
     
     return mpm;
 }
@@ -95,8 +109,11 @@ std::unique_ptr<msm::Msm> MpmTestUtils::applyMpmToMsm(const msm::Msm& msm, const
         return msm.clone(); // No performances to apply
     }
     
-    // TODO: Implement performance application
-    // This would require implementing Performance::perform() method
+    // Get the first performance and apply it to the MSM
+    const auto* performance = mpm.getPerformance(0);
+    if (performance) {
+        return performance->perform(msm);
+    }
     
     return msm.clone();
 }

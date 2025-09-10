@@ -1,5 +1,9 @@
 #include "mpm/Mpm.h"
 #include "mpm/elements/Performance.h"
+#include "mpm/elements/Global.h"
+#include "mpm/elements/Part.h"
+#include "mpm/elements/Dated.h"
+#include "mpm/elements/maps/GenericMap.h"
 #include "mpm/elements/metadata/Metadata.h"
 #include "xml/Helper.h"
 
