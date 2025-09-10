@@ -1,6 +1,7 @@
 # Build artifacts
 out/
 *.class
+build/
 
 # IDE files
 .idea/
@@ -13,3 +14,12 @@ Thumbs.db
 # Temporary files
 *.tmp
 *~
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
