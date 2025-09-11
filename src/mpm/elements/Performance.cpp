@@ -131,46 +131,75 @@ std::unique_ptr<msm::Msm> Performance::perform(const msm::Msm& msm) const {
 }
 
 void Performance::parseData(const Element& xmlElement) {
-    setXml(xmlElement);
+    if (!xmlElement) {
+        throw std::runtime_error("Cannot generate Performance object. XML Element is null.");
+    }
     
-    // Parse name
+    // Check for name attribute - required
     auto nameAttr = xmlElement.attribute("name");
-    if (nameAttr) {
-        name = nameAttr.value();
+    if (!nameAttr || std::string(nameAttr.value()).empty()) {
+        throw std::runtime_error("Cannot generate Performance object. Attribute name is missing or empty.");
     }
     
-    // Parse PPQ
+    setXml(xmlElement);
+    name = nameAttr.value();
+    
+    // Parse ID attribute
+    auto idAttr = xmlElement.attribute("id");
+    if (idAttr) {
+        xmlId = idAttr.value();
+    }
+    
+    // Make sure this element is really a "performance" element (Java does this)
+    // In pugixml, we can't change the local name directly, but we can validate it
+    if (std::string(xmlElement.name()) != "performance") {
+        std::cerr << "Warning: Element is not named 'performance', but '" << xmlElement.name() << "'" << std::endl;
+    }
+    
+    // Make sure the performance has a pulsesPerQuarter attribute
     auto ppqAttr = xmlElement.attribute("pulsesPerQuarter");
-    if (ppqAttr) {
-        pulsesPerQuarter = xml::Helper::parseInt(ppqAttr.value(), 720);
+    if (!ppqAttr) {
+        // Java adds a default attribute to the XML, we'll just set the default value
+        pulsesPerQuarter = 720;
+        std::cerr << "Warning: No pulsesPerQuarter attribute found, using default of 720" << std::endl;
+    } else {
+        try {
+            pulsesPerQuarter = std::stoi(ppqAttr.value());
+        } catch (const std::exception&) {
+            pulsesPerQuarter = 720;
+            std::cerr << "Warning: Invalid pulsesPerQuarter value, using default of 720" << std::endl;
+        }
     }
     
-    // Parse global element
+    // Make sure there is a global environment
     Element globalElement = xml::Helper::getFirstChildElement(xmlElement, "global");
-    if (globalElement && global) {
+    if (!globalElement) {
+        // Java creates a global element if none exists
+        if (!global) {
+            global = std::make_unique<Global>();
+        }
+        // In Java, it would add this to the XML, but we'll just create the object
+        std::cerr << "Warning: No global element found, creating empty global environment" << std::endl;
+    } else {
+        if (!global) {
+            global = std::make_unique<Global>();
+        }
         global->parseData(globalElement);
     }
     
-    // Parse parts
+    // Parse parts - exactly like Java
     std::vector<Element> partElements = xml::Helper::getChildElements(xmlElement, "part");
     for (const auto& partElement : partElements) {
         try {
-            // Parse part attributes
-            auto nameAttr = partElement.attribute("name");
-            auto numberAttr = partElement.attribute("number");
-            auto channelAttr = partElement.attribute("midi.channel");
-            auto portAttr = partElement.attribute("midi.port");
-            
-            std::string partName = nameAttr ? nameAttr.value() : "";
-            int partNumber = numberAttr ? xml::Helper::parseInt(numberAttr.value(), 0) : 0;
-            int channel = channelAttr ? xml::Helper::parseInt(channelAttr.value(), 0) : 0;
-            int port = portAttr ? xml::Helper::parseInt(portAttr.value(), 0) : 0;
-            
-            auto part = Part::createPart(partName, partNumber, channel, port);
-            part->parseData(partElement);
+            auto part = Part::createPart(partElement);  // Use factory method like Java
+            if (!part) {
+                continue;  // Java continues with next part if creation fails
+            }
+            part->setGlobal(global.get());  // Set the global environment like Java
             parts.push_back(std::move(part));
         } catch (const std::exception& e) {
             std::cerr << "Error parsing part: " << e.what() << std::endl;
+            // Java continues with next part on error
         }
     }
 }

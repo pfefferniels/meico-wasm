@@ -29,7 +29,7 @@ private:
     int pulsesPerQuarter;                               // the timing resolution of symbolic time
     std::unique_ptr<Global> global;                     // the global performance information
     std::vector<std::unique_ptr<Part>> parts;          // the local performance information
-    std::string id;                                     // the id attribute
+    std::string xmlId;                                  // the id attribute
 
 public:
     /**
