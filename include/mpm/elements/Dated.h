@@ -56,12 +56,13 @@ public:
      */
     size_t getMapCount() const;
 
-protected:
     /**
      * Parse data from XML element
      * @param xmlElement the XML element to parse
      */
     void parseData(const Element& xmlElement) override;
+
+protected:
 };
 
 } // namespace mpm

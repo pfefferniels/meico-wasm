@@ -145,7 +145,34 @@ void Performance::parseData(const Element& xmlElement) {
         pulsesPerQuarter = xml::Helper::parseInt(ppqAttr.value(), 720);
     }
     
-    // TODO: Parse global and parts from XML
+    // Parse global element
+    Element globalElement = xml::Helper::getFirstChildElement(xmlElement, "global");
+    if (globalElement && global) {
+        global->parseData(globalElement);
+    }
+    
+    // Parse parts
+    std::vector<Element> partElements = xml::Helper::getChildElements(xmlElement, "part");
+    for (const auto& partElement : partElements) {
+        try {
+            // Parse part attributes
+            auto nameAttr = partElement.attribute("name");
+            auto numberAttr = partElement.attribute("number");
+            auto channelAttr = partElement.attribute("midi.channel");
+            auto portAttr = partElement.attribute("midi.port");
+            
+            std::string partName = nameAttr ? nameAttr.value() : "";
+            int partNumber = numberAttr ? xml::Helper::parseInt(numberAttr.value(), 0) : 0;
+            int channel = channelAttr ? xml::Helper::parseInt(channelAttr.value(), 0) : 0;
+            int port = portAttr ? xml::Helper::parseInt(portAttr.value(), 0) : 0;
+            
+            auto part = Part::createPart(partName, partNumber, channel, port);
+            part->parseData(partElement);
+            parts.push_back(std::move(part));
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing part: " << e.what() << std::endl;
+        }
+    }
 }
 
 void Performance::init() {

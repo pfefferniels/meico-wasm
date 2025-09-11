@@ -114,12 +114,13 @@ public:
      */
     std::unique_ptr<msm::Msm> perform(const msm::Msm& msm) const;
 
-protected:
     /**
      * Parse data from XML element (from AbstractXmlSubtree)
      * @param xmlElement the XML element to parse
      */
     void parseData(const Element& xmlElement) override;
+
+protected:
 
 private:
     /**

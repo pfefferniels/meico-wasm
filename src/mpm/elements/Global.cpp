@@ -1,6 +1,7 @@
 #include "mpm/elements/Global.h"
 #include "mpm/elements/Dated.h"
 #include "mpm/elements/maps/GenericMap.h"
+#include "xml/Helper.h"
 
 namespace meico {
 namespace mpm {
@@ -22,7 +23,12 @@ void Global::setDated(std::unique_ptr<Dated> newDated) {
 
 void Global::parseData(const Element& xmlElement) {
     setXml(xmlElement);
-    // TODO: Parse global data from XML
+    
+    // Parse the dated element
+    Element datedElement = xml::Helper::getFirstChildElement(xmlElement, "dated");
+    if (datedElement && dated) {
+        dated->parseData(datedElement);
+    }
 }
 
 } // namespace mpm
