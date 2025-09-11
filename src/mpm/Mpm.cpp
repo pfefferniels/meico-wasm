@@ -109,10 +109,6 @@ void Mpm::init() {
 }
 
 void Mpm::parseData() {
-    // Basic parsing implementation
-    // In a full implementation, this would parse performances and metadata
-    // from the XML document
-    
     performances.clear();
     metadata.reset();
     
@@ -121,11 +117,25 @@ void Mpm::parseData() {
         return;
     }
     
-    // Parse performances (simplified)
-    for (auto child : root.children()) {
-        if (std::string(child.name()) == "performance") {
-            // Would create Performance objects here
-            // For now, just placeholder
+    // Parse metadata
+    Element metadataElement = xml::Helper::getFirstChildElement(root, "metadata");
+    if (metadataElement) {
+        // For now, just create an empty metadata object
+        // In a full implementation, this would parse the metadata content
+        metadata = std::make_unique<Metadata>();
+    }
+    
+    // Parse performances
+    std::vector<Element> performanceElements = xml::Helper::getChildElements(root, "performance");
+    for (const auto& perfElement : performanceElements) {
+        try {
+            auto performance = Performance::createPerformance("");
+            if (performance) {
+                performance->parseData(perfElement);
+                performances.push_back(std::move(performance));
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing performance: " << e.what() << std::endl;
         }
     }
 }

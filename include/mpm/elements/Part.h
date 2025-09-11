@@ -7,30 +7,34 @@
 namespace meico {
 namespace mpm {
 
-// Forward declaration
+// Forward declarations
 class Dated;
+class Global;
+// class Header;  // Commented out for now
 
 /**
- * This class represents a part in MPM performance.
- * Placeholder implementation for MPM Part element.
+ * This class interfaces the part-specific information, as opposed to global information that apply to all parts.
+ * Ported from Java Part class.
+ * @author Axel Berndt (original Java), C++ port
  */
 class Part : public xml::AbstractXmlSubtree {
 private:
-    std::string name;
-    int number;
-    int midiChannel;
-    int midiPort;
-    std::unique_ptr<Dated> dated;
+    Global* global = nullptr;               // a link to the global environment
+    // std::unique_ptr<Header> header;         // the header environment (commented out for now)
+    std::unique_ptr<Dated> dated;           // the dated environment
+    
+    std::string name;                       // the name of the part
+    int number = 0;                         // the part number
+    int midiChannel = 0;                    // the midi channel
+    int midiPort = 0;                       // the midi port
+    std::string xmlId;                      // the id attribute
 
 public:
     /**
-     * Constructor
-     * @param partName the name of the part
-     * @param partNumber the part number
-     * @param channel the MIDI channel
-     * @param port the MIDI port
+     * Constructor from XML element
+     * @param xml the XML element
      */
-    Part(const std::string& partName, int partNumber, int channel, int port);
+    explicit Part(const Element& xml);
 
     /**
      * Virtual destructor
@@ -38,14 +42,11 @@ public:
     virtual ~Part() = default;
 
     /**
-     * Factory method to create a part
-     * @param partName the name of the part
-     * @param partNumber the part number
-     * @param channel the MIDI channel
-     * @param port the MIDI port
+     * Factory method to create a part from XML
+     * @param xml the XML element
      * @return new Part instance
      */
-    static std::unique_ptr<Part> createPart(const std::string& partName, int partNumber, int channel, int port);
+    static std::unique_ptr<Part> createPart(const Element& xml);
 
     /**
      * Get the part name
@@ -79,17 +80,32 @@ public:
     const Dated* getDated() const;
 
     /**
-     * Set the dated container
-     * @param newDated the new dated container
+     * Get the header container
+     * @return header container or nullptr
      */
-    void setDated(std::unique_ptr<Dated> newDated);
+    // Header* getHeader();
+    // const Header* getHeader() const;
 
-protected:
     /**
-     * Parse data from XML element
+     * Set the global environment link
+     * @param globalEnv the global environment
+     */
+    void setGlobal(Global* globalEnv);
+
+    /**
+     * Get the global environment link
+     * @return global environment or nullptr
+     */
+    Global* getGlobal();
+    const Global* getGlobal() const;
+
+    /**
+     * Parse data from XML element (following Java implementation exactly)
      * @param xmlElement the XML element to parse
      */
     void parseData(const Element& xmlElement) override;
+
+protected:
 };
 
 } // namespace mpm
