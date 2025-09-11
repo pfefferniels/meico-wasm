@@ -1,5 +1,6 @@
 #include <iostream>
 #include "xml/XmlBase.h"
+#include "xml/Helper.h"
 #include "msm/Msm.h"
 #include "mpm/Mpm.h"
 #include "mpm/elements/Performance.h"
@@ -46,6 +47,14 @@ int main() {
                     if (!resultXml.empty()) {
                         std::cout << "✓ Generated result XML successfully" << std::endl;
                         std::cout << "  XML length: " << resultXml.length() << " characters" << std::endl;
+                        
+                        // Save result to file for comparison with Java implementation
+                        std::string outputFile = "test/bwv1007_cpp_result.msm";
+                        if (xml::Helper::writeStringToFile(resultXml, outputFile)) {
+                            std::cout << "✓ Saved C++ result to: " << outputFile << std::endl;
+                        } else {
+                            std::cout << "⚠ Could not save C++ result to file" << std::endl;
+                        }
                     }
                 } else {
                     std::cout << "✗ Performance application failed" << std::endl;
