@@ -134,6 +134,25 @@ private:
      * @param maps the maps to apply
      */
     void applyMapsToMsmPart(Element msmPart, const std::vector<std::unique_ptr<GenericMap>>& maps) const;
+    
+    /**
+     * Add performance timing attributes to all elements in a dated section (like Java addPerformanceTimingAttributes)
+     * @param dated the dated element
+     */
+    void addPerformanceTimingAttributesToDated(Element dated) const;
+    
+    /**
+     * Apply performance transformations to an MSM part
+     * @param msmPart the MSM part element
+     * @param dated the dated element within the part
+     */
+    void applyPerformanceTransformations(Element msmPart, Element dated) const;
+    
+    /**
+     * Apply basic timing transformation to a score element
+     * @param score the score element containing notes
+     */
+    void applyBasicTimingTransformation(Element score) const;
 };
 
 } // namespace mpm
